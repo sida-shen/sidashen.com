@@ -32,6 +32,9 @@ const Desktop = {
     // Set up top panel clock
     this.startClock();
 
+    // Set up Activities menu
+    this.setupActivitiesMenu();
+
     // Set up dock
     this.setupDock();
 
@@ -132,6 +135,77 @@ const Desktop = {
     this._apps[win.id] = app;
     this.updateDockIndicators();
     return win;
+  },
+
+  /* ------------------------------------------------------------------ */
+  /*  Activities menu                                                    */
+  /* ------------------------------------------------------------------ */
+
+  setupActivitiesMenu() {
+    const btn = document.getElementById('activities-btn');
+    const menu = document.getElementById('activities-menu');
+    if (!btn || !menu) return;
+
+    // Toggle menu on click
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isOpen = !menu.classList.contains('hidden');
+      if (isOpen) {
+        this.closeActivitiesMenu();
+      } else {
+        menu.classList.remove('hidden');
+        btn.classList.add('active');
+      }
+    });
+
+    // Close on click outside
+    document.addEventListener('click', () => {
+      this.closeActivitiesMenu();
+    });
+
+    // Prevent menu clicks from closing the menu immediately
+    menu.addEventListener('click', (e) => {
+      e.stopPropagation();
+    });
+
+    // Handle menu item clicks
+    menu.querySelectorAll('.panel-menu-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const action = item.dataset.action;
+        this.closeActivitiesMenu();
+        this.handleMenuAction(action);
+      });
+    });
+  },
+
+  closeActivitiesMenu() {
+    const menu = document.getElementById('activities-menu');
+    const btn = document.getElementById('activities-btn');
+    if (menu) menu.classList.add('hidden');
+    if (btn) btn.classList.remove('active');
+  },
+
+  handleMenuAction(action) {
+    switch (action) {
+      case 'terminal':
+        this.openTerminal();
+        break;
+      case 'files':
+        this.openExplorer();
+        break;
+      case 'about':
+        this.openViewer('~/about.txt', 'about.txt');
+        break;
+      case 'contact':
+        this.openViewer('~/contact.txt', 'contact.txt');
+        break;
+      default:
+        if (action && action.startsWith('theme-')) {
+          const theme = action.substring(6);
+          document.documentElement.setAttribute('data-theme', theme);
+        }
+        break;
+    }
   },
 
   /* ------------------------------------------------------------------ */
