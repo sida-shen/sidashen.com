@@ -76,3 +76,47 @@
 .viewer-content a:hover {
   text-decoration: underline;
 }
+
+/* --- Back Button --- */
+.viewer-back-btn {
+  background: transparent;
+  border: 1px solid #555;
+  color: #aaa;
+  padding: 3px 10px;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 12px;
+  font-family: inherit;
+  margin-right: 10px;
+  white-space: nowrap;
+}
+
+.viewer-back-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+/* --- Mobile Responsive --- */
+@media (max-width: 768px) {
+  .viewer-back-btn {
+    padding: 8px 14px;
+    font-size: 16px;
+  }
+
+  .viewer-filename {
+    font-size: 15px;
+  }
+
+  .viewer-content {
+    padding: 16px 18px;
+    font-size: 14px;
+  }
+
+  .viewer-content .h1 {
+    font-size: 20px;
+  }
+
+  .viewer-content .h2 {
+    font-size: 17px;
+  }
+}

@@ -48,8 +48,8 @@ const Desktop = {
 
   boot() {
     if (this.isMobile()) {
-      // Mobile: single fullscreen terminal
-      this.openTerminal({ fullscreen: true });
+      // Mobile: fullscreen file explorer (tap files to open viewer)
+      this.openExplorer('~', { fullscreen: true });
     } else {
       // Desktop: open terminal (left) + explorer (right), floating
       const desktopEl = document.getElementById('desktop');
@@ -122,6 +122,10 @@ const Desktop = {
         this.updateDockIndicators();
       },
     });
+
+    if (opts.fullscreen) {
+      WindowManager.maximizeWindow(win.id);
+    }
 
     const app = new ExplorerApp(win, startPath || '~');
     this._apps[win.id] = app;

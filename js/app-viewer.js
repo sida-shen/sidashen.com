@@ -34,10 +34,19 @@ class ViewerApp {
     this.toolbarEl = document.createElement('div');
     this.toolbarEl.className = 'viewer-toolbar';
 
+    // Back button (closes viewer, returns to previous window)
+    this.backBtn = document.createElement('button');
+    this.backBtn.className = 'viewer-back-btn';
+    this.backBtn.textContent = '← Back';
+    this.backBtn.addEventListener('click', () => {
+      WindowManager.closeWindow(this.winState.id);
+    });
+
     this.filenameEl = document.createElement('span');
     this.filenameEl.className = 'viewer-filename';
     this.filenameEl.textContent = this.filename;
 
+    this.toolbarEl.appendChild(this.backBtn);
     this.toolbarEl.appendChild(this.filenameEl);
 
     // Content

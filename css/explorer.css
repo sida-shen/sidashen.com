@@ -193,3 +193,48 @@
   padding: 40px;
   font-style: italic;
 }
+
+/* --- Mobile Responsive --- */
+@media (max-width: 768px) {
+  .explorer-toolbar {
+    padding: 10px 14px;
+  }
+
+  .explorer-nav-btn,
+  .explorer-view-btn {
+    padding: 8px 12px;
+    font-size: 16px;
+  }
+
+  .explorer-crumb {
+    padding: 4px 10px;
+    font-size: 14px;
+  }
+
+  .explorer-icon-view {
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 12px;
+  }
+
+  .explorer-item {
+    padding: 12px 4px;
+  }
+
+  .explorer-item-icon {
+    font-size: 42px;
+  }
+
+  .explorer-item-name {
+    font-size: 12px;
+    max-width: 72px;
+  }
+
+  .explorer-list-row {
+    padding: 10px 14px;
+    font-size: 14px;
+  }
+
+  .explorer-list-icon {
+    font-size: 22px;
+  }
+}
