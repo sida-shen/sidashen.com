@@ -51,14 +51,18 @@ const Desktop = {
       // Mobile: single fullscreen terminal
       this.openTerminal({ fullscreen: true });
     } else {
-      // Desktop: open terminal (left) + explorer (right), side by side
+      // Desktop: open terminal (left) + explorer (right), floating
       const desktopEl = document.getElementById('desktop');
       const dw = desktopEl.offsetWidth;
       const dh = desktopEl.offsetHeight;
-      const halfW = Math.floor(dw / 2);
+      const pad = 20;
+      const gap = 14;
+      const winW = Math.floor((dw - pad * 2 - gap) / 2);
+      const termH = Math.floor(dh * 0.72);
+      const expH  = Math.floor(dh * 0.68);
 
-      this.openTerminal({ x: 0, y: 0, width: halfW, height: dh });
-      this.openExplorer('~',    { x: halfW, y: 0, width: dw - halfW, height: dh });
+      this.openTerminal({ x: pad, y: pad, width: winW, height: termH });
+      this.openExplorer('~', { x: pad + winW + gap, y: pad + 40, width: winW, height: expH });
     }
     this._booted = true;
   },
@@ -158,26 +162,27 @@ const Desktop = {
     const menu = document.getElementById('activities-menu');
     if (!btn || !menu) return;
 
+    // Create invisible backdrop to catch outside clicks
+    this._menuBackdrop = document.createElement('div');
+    this._menuBackdrop.className = 'panel-menu-backdrop hidden';
+    document.body.appendChild(this._menuBackdrop);
+
+    this._menuBackdrop.addEventListener('click', () => {
+      this.closeActivitiesMenu();
+    });
+
     // Toggle menu on click
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
+      e.preventDefault();
       const isOpen = !menu.classList.contains('hidden');
       if (isOpen) {
         this.closeActivitiesMenu();
       } else {
         menu.classList.remove('hidden');
+        this._menuBackdrop.classList.remove('hidden');
         btn.classList.add('active');
       }
-    });
-
-    // Close on click outside
-    document.addEventListener('click', () => {
-      this.closeActivitiesMenu();
-    });
-
-    // Prevent menu clicks from closing the menu immediately
-    menu.addEventListener('click', (e) => {
-      e.stopPropagation();
     });
 
     // Handle menu item clicks
@@ -195,6 +200,7 @@ const Desktop = {
     const btn = document.getElementById('activities-btn');
     if (menu) menu.classList.add('hidden');
     if (btn) btn.classList.remove('active');
+    if (this._menuBackdrop) this._menuBackdrop.classList.add('hidden');
   },
 
   handleMenuAction(action) {

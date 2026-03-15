@@ -59,9 +59,9 @@ body {
 
 /* --- Activities Menu --- */
 .panel-menu {
-  position: absolute;
+  position: fixed;
   top: 28px;
-  left: 4px;
+  left: 72px;
   min-width: 180px;
   background: rgba(30, 30, 30, 0.95);
   backdrop-filter: blur(20px);
@@ -70,11 +70,24 @@ body {
   border-radius: 0 0 8px 8px;
   padding: 6px 0;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
-  z-index: 9100;
+  z-index: 10000;
   font-family: 'JetBrains Mono', monospace;
 }
 
 .panel-menu.hidden {
+  display: none;
+}
+
+.panel-menu-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9999;
+}
+
+.panel-menu-backdrop.hidden {
   display: none;
 }
 
