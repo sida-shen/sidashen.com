@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="green">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>sida@devmarketing: ~</title>
-  <meta name="description" content="Sida Shen - Developer Marketing, Product Marketing & DevRel. Terminal-style personal website.">
+  <title>DevOS — sida@devmarketing</title>
+  <meta name="description" content="Sida Shen - Developer Marketing, Product Marketing & DevRel. Ubuntu-style desktop personal website.">
   <meta name="keywords" content="Sida Shen, Developer Marketing, CelerData, StarRocks, Product Marketing, DevRel">
   <meta property="og:title" content="Sida Shen - Developer Marketer">
   <meta property="og:description" content="Product Marketing Manager @ CelerData. Developer Marketing, DevRel, Open Source.">
@@ -13,21 +13,47 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet">
+
+  <!-- Stylesheets -->
   <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/desktop.css">
+  <link rel="stylesheet" href="css/window.css">
+  <link rel="stylesheet" href="css/terminal.css">
+  <link rel="stylesheet" href="css/explorer.css">
+  <link rel="stylesheet" href="css/viewer.css">
 </head>
 <body>
-  <div id="crt">
-    <div id="terminal">
-      <div id="output"></div>
-      <div id="input-line">
-        <span id="prompt"></span>
-        <span id="input-display"></span>
-        <span id="cursor" class="cursor">&block;</span>
-      </div>
+
+  <!-- ========== Top Panel ========== -->
+  <div id="top-panel">
+    <div id="panel-left">
+      <button id="activities-btn">Activities</button>
+    </div>
+    <div id="panel-center">
+      <span id="panel-clock"></span>
+    </div>
+    <div id="panel-right">
+      <span class="tray-icon">🔊</span>
+      <span class="tray-icon">🔋</span>
+      <span class="tray-icon">⏻</span>
     </div>
   </div>
-  <textarea id="hidden-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-label="Terminal input"></textarea>
 
+  <!-- ========== Desktop (Window Container) ========== -->
+  <div id="desktop"></div>
+
+  <!-- ========== Dock ========== -->
+  <div id="dock">
+    <div class="dock-icon" id="dock-terminal" title="Terminal">
+      <div class="dock-icon-inner terminal-icon">❯_</div>
+    </div>
+    <div class="dock-icon" id="dock-files" title="Files">
+      <div class="dock-icon-inner files-icon">📁</div>
+    </div>
+    <div class="dock-separator"></div>
+  </div>
+
+  <!-- ========== No-JS Fallback ========== -->
   <noscript>
     <div style="font-family:monospace;padding:2rem;max-width:700px;margin:0 auto;">
       <h1>Sida Shen</h1>
@@ -46,6 +72,12 @@
     </div>
   </noscript>
 
-  <script src="js/terminal.js"></script>
+  <!-- ========== Scripts (load order matters) ========== -->
+  <script src="js/filesystem.js"></script>
+  <script src="js/window-manager.js"></script>
+  <script src="js/app-terminal.js"></script>
+  <script src="js/app-explorer.js"></script>
+  <script src="js/app-viewer.js"></script>
+  <script src="js/desktop.js"></script>
 </body>
 </html>

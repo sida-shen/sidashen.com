@@ -1,0 +1,137 @@
+/* ============================================================
+   SidaOS — Terminal App
+   ============================================================ */
+
+/* --- Terminal Container --- */
+.terminal-app {
+  width: 100%;
+  height: 100%;
+  background: var(--bg);
+  position: relative;
+  overflow: hidden;
+  font-family: inherit;
+  color: var(--fg);
+}
+
+/* --- Scanlines --- */
+.terminal-app::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, var(--scanline-opacity)) 0px,
+    rgba(0, 0, 0, var(--scanline-opacity)) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* --- Vignette --- */
+.terminal-app::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 50%,
+    rgba(0, 0, 0, 0.35) 100%
+  );
+  pointer-events: none;
+  z-index: 3;
+}
+
+/* --- Scroll Wrapper (sits below the CRT overlays) --- */
+.terminal-scroller {
+  height: 100%;
+  overflow-y: auto;
+  position: relative;
+  z-index: 1;
+  scrollbar-width: thin;
+  scrollbar-color: var(--fg-dim) var(--bg);
+}
+
+.terminal-scroller::-webkit-scrollbar {
+  width: 6px;
+}
+
+.terminal-scroller::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+
+.terminal-scroller::-webkit-scrollbar-thumb {
+  background: var(--fg-dim);
+  border-radius: 3px;
+}
+
+/* --- Terminal Output --- */
+.terminal-output {
+  padding: 16px 20px 0;
+  text-shadow: 0 0 5px var(--glow);
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+/* --- Lines --- */
+.terminal-line {
+  min-height: 1.5em;
+}
+
+/* --- Input Line --- */
+.terminal-input-line {
+  display: flex;
+  align-items: flex-start;
+  min-height: 1.5em;
+  white-space: pre;
+  padding: 0 20px 120px;
+  text-shadow: 0 0 5px var(--glow);
+}
+
+/* --- Cursor --- */
+.terminal-cursor {
+  display: inline-block;
+  animation: termBlink 1s step-end infinite;
+  color: var(--fg);
+}
+
+@keyframes termBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* --- Hidden Input (for mobile keyboard support) --- */
+.terminal-hidden-input {
+  position: fixed;
+  left: -9999px;
+  top: 0;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  font-size: 16px; /* prevents iOS zoom */
+}
+
+/* --- Mobile Responsive --- */
+@media (max-width: 768px) {
+  .terminal-app::before,
+  .terminal-app::after {
+    display: none;
+  }
+
+  .terminal-output {
+    padding: 10px 12px 0;
+    font-size: 12px;
+  }
+
+  .terminal-input-line {
+    padding: 0 12px 150px;
+    font-size: 12px;
+  }
+}
