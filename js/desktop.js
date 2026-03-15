@@ -47,12 +47,18 @@ const Desktop = {
   /* ------------------------------------------------------------------ */
 
   boot() {
-    // Check for mobile — open fullscreen terminal
     if (this.isMobile()) {
+      // Mobile: single fullscreen terminal
       this.openTerminal({ fullscreen: true });
     } else {
-      // Desktop: open terminal
-      this.openTerminal();
+      // Desktop: open terminal (left) + explorer (right), side by side
+      const desktopEl = document.getElementById('desktop');
+      const dw = desktopEl.offsetWidth;
+      const dh = desktopEl.offsetHeight;
+      const halfW = Math.floor(dw / 2);
+
+      this.openTerminal({ x: 0, y: 0, width: halfW, height: dh });
+      this.openExplorer('~',    { x: halfW, y: 0, width: dw - halfW, height: dh });
     }
     this._booted = true;
   },
@@ -62,11 +68,14 @@ const Desktop = {
   /* ------------------------------------------------------------------ */
 
   openTerminal(opts) {
+    opts = opts || {};
     const win = WindowManager.createWindow({
       appType: 'terminal',
       title: CONFIG.user + '@' + CONFIG.host + ': ~',
-      width: 780,
-      height: 520,
+      width: opts.width || 780,
+      height: opts.height || 520,
+      x: opts.x,
+      y: opts.y,
       onFocus: (w) => {
         const app = this._apps[w.id];
         if (app && app.focus) app.focus();
@@ -79,7 +88,7 @@ const Desktop = {
       },
     });
 
-    if (opts && opts.fullscreen) {
+    if (opts.fullscreen) {
       WindowManager.maximizeWindow(win.id);
     }
 
@@ -89,12 +98,15 @@ const Desktop = {
     return win;
   },
 
-  openExplorer(startPath) {
+  openExplorer(startPath, opts) {
+    opts = opts || {};
     const win = WindowManager.createWindow({
       appType: 'explorer',
       title: 'Home — Files',
-      width: 700,
-      height: 480,
+      width: opts.width || 700,
+      height: opts.height || 480,
+      x: opts.x,
+      y: opts.y,
       onFocus: (w) => {
         const app = this._apps[w.id];
         if (app && app.focus) app.focus();

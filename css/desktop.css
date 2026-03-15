@@ -115,26 +115,28 @@ body {
 #desktop {
   position: fixed;
   top: 28px;
-  left: 0;
+  left: 68px;           /* room for left dock */
   right: 0;
   bottom: 0;
   overflow: hidden;
 }
 
-/* --- Dock --- */
+/* --- Dock (Left Side — Ubuntu Default) --- */
 #dock {
   position: fixed;
-  bottom: 8px;
-  left: 50%;
-  transform: translateX(-50%);
+  top: 28px;             /* below top panel */
+  left: 0;
+  bottom: 0;
+  width: 68px;
   display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 0;
   gap: 4px;
-  padding: 4px 10px;
   background: rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
   z-index: 9000;
 }
 
@@ -152,15 +154,16 @@ body {
 }
 
 .dock-icon:hover {
-  transform: scale(1.2);
+  transform: scale(1.15);
 }
 
+/* Active indicator dot on the right edge (Ubuntu style) */
 .dock-icon.active::after {
   content: '';
   position: absolute;
-  bottom: -4px;
-  left: 50%;
-  transform: translateX(-50%);
+  right: -6px;
+  top: 50%;
+  transform: translateY(-50%);
   width: 4px;
   height: 4px;
   background: #fff;
@@ -195,11 +198,10 @@ body {
 
 /* --- Dock Separator --- */
 .dock-separator {
-  width: 1px;
-  height: 32px;
-  background: rgba(255, 255, 255, 0.2);
-  margin: 0 4px;
-  align-self: center;
+  width: 32px;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.15);
+  margin: 4px 0;
 }
 
 /* --- Mobile Responsive --- */
@@ -214,5 +216,6 @@ body {
 
   #desktop {
     top: 0;
+    left: 0;
   }
 }
