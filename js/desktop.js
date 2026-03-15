@@ -171,8 +171,8 @@ const Desktop = {
       this.closeActivitiesMenu();
     });
 
-    // Toggle menu on click
-    btn.addEventListener('click', (e) => {
+    // Toggle menu on mousedown (more reliable across stacking contexts)
+    btn.addEventListener('mousedown', (e) => {
       e.stopPropagation();
       e.preventDefault();
       const isOpen = !menu.classList.contains('hidden');
