@@ -1,0 +1,310 @@
+/* ============================================================
+   SidaOS Terminal — CSS
+   ============================================================ */
+
+/* --- Theme Variables --- */
+:root,
+[data-theme="green"] {
+  --fg: #00ff41;
+  --fg-dim: #00aa2a;
+  --fg-bright: #66ff8c;
+  --bg: #0a0a0a;
+  --bg-light: #111;
+  --accent: #ffb800;
+  --link: #00d4ff;
+  --dir: #5c9eff;
+  --h1: #ff6ac1;
+  --h2: #ffb800;
+  --error: #ff5555;
+  --success: #00ff41;
+  --bold: #ffffff;
+  --glow: rgba(0, 255, 65, 0.25);
+  --scanline-opacity: 0.06;
+}
+
+[data-theme="amber"] {
+  --fg: #ffb000;
+  --fg-dim: #996a00;
+  --fg-bright: #ffd966;
+  --bg: #0a0800;
+  --bg-light: #141000;
+  --accent: #ff6600;
+  --link: #ffcc00;
+  --dir: #ffd966;
+  --h1: #ff8800;
+  --h2: #ffcc00;
+  --glow: rgba(255, 176, 0, 0.25);
+}
+
+[data-theme="blue"] {
+  --fg: #4fc3f7;
+  --fg-dim: #0277bd;
+  --fg-bright: #b3e5fc;
+  --bg: #0a0a14;
+  --bg-light: #0d1117;
+  --accent: #82b1ff;
+  --link: #80d8ff;
+  --dir: #82b1ff;
+  --h1: #ff80ab;
+  --h2: #ffd740;
+  --glow: rgba(79, 195, 247, 0.2);
+}
+
+[data-theme="white"] {
+  --fg: #1a1a1a;
+  --fg-dim: #666;
+  --fg-bright: #000;
+  --bg: #f5f5f0;
+  --bg-light: #eeeee8;
+  --accent: #0066cc;
+  --link: #0066cc;
+  --dir: #0066cc;
+  --h1: #cc0066;
+  --h2: #cc6600;
+  --bold: #000;
+  --error: #cc0000;
+  --success: #008800;
+  --glow: transparent;
+  --scanline-opacity: 0;
+}
+
+[data-theme="dracula"] {
+  --fg: #f8f8f2;
+  --fg-dim: #6272a4;
+  --fg-bright: #fff;
+  --bg: #282a36;
+  --bg-light: #2d2f3d;
+  --accent: #bd93f9;
+  --link: #8be9fd;
+  --dir: #50fa7b;
+  --h1: #ff79c6;
+  --h2: #f1fa8c;
+  --bold: #fff;
+  --error: #ff5555;
+  --success: #50fa7b;
+  --glow: rgba(189, 147, 249, 0.15);
+  --scanline-opacity: 0.02;
+}
+
+/* --- Reset & Base --- */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'Source Code Pro', 'Menlo', 'Consolas', 'Liberation Mono', monospace;
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--fg);
+  color: var(--bg);
+}
+
+/* --- CRT Effects --- */
+#crt {
+  height: 100%;
+  position: relative;
+}
+
+#crt::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, var(--scanline-opacity)) 0px,
+    rgba(0, 0, 0, var(--scanline-opacity)) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  pointer-events: none;
+  z-index: 1000;
+}
+
+#crt::after {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 50%,
+    rgba(0, 0, 0, 0.35) 100%
+  );
+  pointer-events: none;
+  z-index: 1001;
+}
+
+/* --- Terminal --- */
+#terminal {
+  height: 100%;
+  overflow-y: auto;
+  padding: 16px 20px 120px;
+  text-shadow: 0 0 5px var(--glow);
+  scrollbar-width: thin;
+  scrollbar-color: var(--fg-dim) var(--bg);
+}
+
+#terminal::-webkit-scrollbar {
+  width: 6px;
+}
+
+#terminal::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+
+#terminal::-webkit-scrollbar-thumb {
+  background: var(--fg-dim);
+  border-radius: 3px;
+}
+
+/* --- Output --- */
+#output {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+#output .line {
+  min-height: 1.5em;
+}
+
+/* --- Input Line --- */
+#input-line {
+  display: flex;
+  align-items: flex-start;
+  min-height: 1.5em;
+  white-space: pre;
+}
+
+#input-display {
+  white-space: pre;
+}
+
+/* --- Cursor --- */
+.cursor {
+  display: inline-block;
+  animation: blink 1s step-end infinite;
+  color: var(--fg);
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* --- Hidden Input --- */
+#hidden-input {
+  position: fixed;
+  left: -9999px;
+  top: 0;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  font-size: 16px; /* prevents iOS zoom */
+}
+
+/* --- Text Styles --- */
+.prompt {
+  color: var(--fg);
+  font-weight: 700;
+}
+
+.prompt .user { color: var(--success); }
+.prompt .host { color: var(--success); }
+.prompt .path { color: var(--dir); }
+.prompt .sep  { color: var(--fg-dim); }
+
+.dim { color: var(--fg-dim); }
+.accent { color: var(--accent); }
+.error { color: var(--error); }
+.success { color: var(--success); font-weight: 700; }
+.bold { color: var(--bold); font-weight: 700; }
+.link { color: var(--link); }
+.dir-name { color: var(--dir); font-weight: 700; }
+.file-name { color: var(--fg); }
+.hidden-file { color: var(--fg-dim); }
+.h1 { color: var(--h1); font-weight: 700; }
+.h2 { color: var(--h2); font-weight: 700; }
+.label { color: var(--accent); }
+.logo { color: var(--fg-bright); font-weight: 700; }
+.boot-ok { color: var(--success); font-weight: 700; }
+.separator { color: var(--fg-dim); }
+
+.color-block-1 { color: #1a1a2e; }
+.color-block-2 { color: #e94560; }
+.color-block-3 { color: #0f3460; }
+.color-block-4 { color: #533483; }
+.color-block-5 { color: #00ff41; }
+.color-block-6 { color: #ffb800; }
+.color-block-7 { color: #00d4ff; }
+.color-block-8 { color: #f8f8f2; }
+
+a {
+  color: var(--link);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* --- Responsive --- */
+@media (max-width: 768px) {
+  html, body {
+    font-size: 12px;
+  }
+
+  #terminal {
+    padding: 10px 12px 150px;
+  }
+
+  #crt::before {
+    display: none;
+  }
+
+  #crt::after {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  html, body {
+    font-size: 11px;
+  }
+}
+
+/* --- Print --- */
+@media print {
+  #crt::before,
+  #crt::after {
+    display: none;
+  }
+
+  body {
+    background: #fff;
+    color: #000;
+  }
+
+  #terminal {
+    text-shadow: none;
+    overflow: visible;
+    height: auto;
+  }
+
+  a { color: #0066cc; }
+}
