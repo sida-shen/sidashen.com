@@ -17,6 +17,8 @@ class TerminalApp {
     this.historyIdx = -1;
     this.tempBuffer = '';
     this.booted = false;
+    this.chatHistory = [];
+    this._chatPending = false;
 
     this.createDOM();
     this.setupListeners();
@@ -122,6 +124,7 @@ class TerminalApp {
     this.printNeofetch();
     this.print('');
     this.printHTML('<span class="dim">Type \'help\' to see available commands. Use Tab to autocomplete.</span>');
+    this.printHTML('<span class="dim">Or just type naturally — I know everything about Sida.</span>');
     this.print('');
     this.booted = true;
     this.updatePrompt();
@@ -420,7 +423,8 @@ class TerminalApp {
       case 'ping':    this.cmdPing(args); break;
       case 'wget': case 'curl': this.cmdWget(); break;
       default:
-        this.printHTML('<span class="error">bash: ' + VFS.escapeHtml(cmd) + ': command not found</span>');
+        // Not a known command → send to LLM chat
+        this.cmdChat(raw);
         break;
     }
   }
@@ -440,6 +444,10 @@ class TerminalApp {
     this.print('');
     this.printHTML('<span class="dim">Tip: Use Tab for completion, \u2191\u2193 for history, Ctrl+L to clear</span>');
     this.printHTML('<span class="dim">Hidden files exist. Try: ls -a</span>');
+    if (LLM_CONFIG.endpoint) {
+      this.print('');
+      this.printHTML('<span class="dim">Or just type naturally to chat — I know everything about Sida.</span>');
+    }
   }
 
   cmdWhoami() {
@@ -820,6 +828,95 @@ class TerminalApp {
   cmdWget() {
     this.printHTML('<span class="accent">I appreciate the enthusiasm, but you can\'t download my portfolio.</span>');
     this.printHTML('<span class="dim">Try \'contact\' to reach me instead.</span>');
+  }
+
+  /* ------------------------------------------------------------------ */
+  /*  LLM Chat                                                           */
+  /* ------------------------------------------------------------------ */
+
+  async cmdChat(input) {
+    if (!LLM_CONFIG.endpoint) {
+      this.printHTML('<span class="error">bash: ' + VFS.escapeHtml(input.split(/\s/)[0]) + ': command not found</span>');
+      return;
+    }
+
+    if (this._chatPending) {
+      this.printHTML('<span class="dim">Still thinking... please wait.</span>');
+      return;
+    }
+
+    this._chatPending = true;
+
+    // Add user message to history
+    this.chatHistory.push({ role: 'user', content: input });
+
+    // Trim to max history
+    const maxMsgs = (LLM_CONFIG.maxHistory || 6) * 2;
+    if (this.chatHistory.length > maxMsgs) {
+      this.chatHistory = this.chatHistory.slice(-maxMsgs);
+    }
+
+    // Show thinking indicator
+    const thinkEl = document.createElement('div');
+    thinkEl.className = 'terminal-line';
+    thinkEl.innerHTML = '<span class="dim">thinking</span><span class="chat-dots">...</span>';
+    this.outputEl.appendChild(thinkEl);
+    this.scrollToBottom();
+
+    // Animate dots
+    let dotCount = 0;
+    const dotInterval = setInterval(() => {
+      dotCount = (dotCount + 1) % 4;
+      const dotsEl = thinkEl.querySelector('.chat-dots');
+      if (dotsEl) dotsEl.textContent = '.'.repeat(dotCount || 1);
+    }, 400);
+
+    // Hide input while waiting
+    const inputLine = this.scrollEl.querySelector('.terminal-input-line');
+    if (inputLine) inputLine.style.display = 'none';
+
+    try {
+      const resp = await fetch(LLM_CONFIG.endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: this.chatHistory }),
+      });
+
+      // Remove thinking indicator
+      clearInterval(dotInterval);
+      thinkEl.remove();
+
+      if (!resp.ok) {
+        const err = await resp.json().catch(() => ({}));
+        const msg = err.error || 'Something went wrong. Try again later.';
+        this.printHTML('<span class="error">' + VFS.escapeHtml(msg) + '</span>');
+        this.chatHistory.pop(); // remove failed user message
+      } else {
+        const data = await resp.json();
+        const text = data.text || '';
+
+        // Add assistant response to history
+        this.chatHistory.push({ role: 'assistant', content: text });
+
+        // Print response with accent color
+        this.print('');
+        const lines = text.split('\n');
+        for (const line of lines) {
+          this.printHTML('<span class="accent">' + VFS.escapeHtml(line) + '</span>');
+        }
+        this.print('');
+      }
+    } catch (err) {
+      clearInterval(dotInterval);
+      thinkEl.remove();
+      this.printHTML('<span class="error">Network error. Check your connection.</span>');
+      this.chatHistory.pop();
+    } finally {
+      this._chatPending = false;
+      if (inputLine) inputLine.style.display = '';
+      this.scrollToBottom();
+      this.focus();
+    }
   }
 
   /* ------------------------------------------------------------------ */

@@ -107,6 +107,12 @@
   50% { opacity: 0; }
 }
 
+/* --- Chat thinking dots --- */
+.chat-dots {
+  display: inline-block;
+  letter-spacing: 2px;
+}
+
 /* --- Hidden Input (for mobile keyboard support) --- */
 .terminal-hidden-input {
   position: fixed;

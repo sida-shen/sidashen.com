@@ -26,6 +26,12 @@ const CONFIG = {
   linkedin: 'https://www.linkedin.com/in/sida-shen-165303193/',
 };
 
+// LLM chat endpoint — paste your Lambda Function URL here after deploy
+const LLM_CONFIG = {
+  endpoint: '', // e.g. 'https://xxx.lambda-url.us-east-1.on.aws/'
+  maxHistory: 6,
+};
+
 
 // =================================================================
 // LOGO_LINES — ASCII art for neofetch display
