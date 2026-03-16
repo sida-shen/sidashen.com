@@ -221,8 +221,13 @@ export async function handler(event) {
     return { statusCode: 400, body: JSON.stringify({ error: 'messages required' }) };
   }
 
-  // Rate limit
+  // Log request
   const ip = event.requestContext?.http?.sourceIp || 'unknown';
+  const userAgent = event.headers?.['user-agent'] || '';
+  const lastUserMsg = messages[messages.length - 1]?.content || '';
+  console.log(JSON.stringify({ type: 'request', ip, userAgent, message: lastUserMsg, turns: messages.length }));
+
+  // Rate limit
   if (!(await checkRateLimit(ip))) {
     return { statusCode: 429, body: JSON.stringify({ error: 'Rate limit exceeded. Please wait a moment.' }) };
   }
@@ -302,6 +307,9 @@ export async function handler(event) {
       }
     }
 
+    // Log response
+    console.log(JSON.stringify({ type: 'response', ip, input_tokens: inputTokens, output_tokens: outputTokens, response: fullText }));
+
     // Record usage
     if (inputTokens || outputTokens) {
       await recordUsage(inputTokens, outputTokens);
@@ -318,7 +326,6 @@ export async function handler(event) {
   } catch (err) {
     return {
       statusCode: 500,
-      headers: cors,
       body: JSON.stringify({ error: 'Internal error', detail: err.message }),
     };
   }
