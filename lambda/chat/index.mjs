@@ -134,16 +134,8 @@ Scale StarRocks community to 10K+ members, launch AI-native analytics developer 
 
 // ── Helpers ──────────────────────────────────────────────────────────
 
-function corsHeaders(origin) {
-  const allowed = process.env.ALLOWED_ORIGIN || 'https://sidashen.com';
-  const allowedList = allowed.split(',').map(s => s.trim());
-  const matched = allowedList.includes(origin) ? origin : allowedList[0];
-  return {
-    'Access-Control-Allow-Origin': matched,
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type',
-  };
-}
+// CORS is handled automatically by Lambda Function URL config.
+// Do NOT add CORS headers in responses — duplicates cause browsers to reject.
 
 function monthKey() {
   const d = new Date();
@@ -213,36 +205,30 @@ async function recordUsage(inputTokens, outputTokens) {
 // ── Handler ──────────────────────────────────────────────────────────
 
 export async function handler(event) {
-  const origin = event.headers?.origin || event.headers?.Origin || '';
-  const cors = corsHeaders(origin);
-
-  // CORS preflight
-  if (event.requestContext?.http?.method === 'OPTIONS') {
-    return { statusCode: 204, headers: cors };
-  }
+  // CORS preflight is handled automatically by Lambda Function URL config
 
   // Parse body
   let body;
   try {
     body = JSON.parse(event.body || '{}');
   } catch {
-    return { statusCode: 400, headers: cors, body: JSON.stringify({ error: 'Invalid JSON' }) };
+    return { statusCode: 400, body: JSON.stringify({ error: 'Invalid JSON' }) };
   }
 
   const messages = body.messages;
   if (!Array.isArray(messages) || messages.length === 0) {
-    return { statusCode: 400, headers: cors, body: JSON.stringify({ error: 'messages required' }) };
+    return { statusCode: 400, body: JSON.stringify({ error: 'messages required' }) };
   }
 
   // Rate limit
   const ip = event.requestContext?.http?.sourceIp || 'unknown';
   if (!(await checkRateLimit(ip))) {
-    return { statusCode: 429, headers: cors, body: JSON.stringify({ error: 'Rate limit exceeded. Please wait a moment.' }) };
+    return { statusCode: 429, body: JSON.stringify({ error: 'Rate limit exceeded. Please wait a moment.' }) };
   }
 
   // Spend cap
   if (!(await checkSpendCap())) {
-    return { statusCode: 503, headers: cors, body: JSON.stringify({ error: 'Chat is temporarily unavailable. Try again next month or email shenstan1@gmail.com.' }) };
+    return { statusCode: 503, body: JSON.stringify({ error: 'Chat is temporarily unavailable. Try again next month or email shenstan1@gmail.com.' }) };
   }
 
   // Trim to last N turns
@@ -251,7 +237,7 @@ export async function handler(event) {
   // Call Anthropic (streaming)
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
-    return { statusCode: 500, headers: cors, body: JSON.stringify({ error: 'API key not configured' }) };
+    return { statusCode: 500, body: JSON.stringify({ error: 'API key not configured' }) };
   }
 
   try {
@@ -273,7 +259,7 @@ export async function handler(event) {
 
     if (!resp.ok) {
       const errText = await resp.text();
-      return { statusCode: 502, headers: cors, body: JSON.stringify({ error: 'Upstream error', detail: errText }) };
+      return { statusCode: 502, body: JSON.stringify({ error: 'Upstream error', detail: errText }) };
     }
 
     // Collect streamed response and return as complete text
@@ -322,7 +308,7 @@ export async function handler(event) {
 
     return {
       statusCode: 200,
-      headers: { ...cors, 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         text: fullText,
         usage: { input_tokens: inputTokens, output_tokens: outputTokens },

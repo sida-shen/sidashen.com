@@ -175,13 +175,26 @@ FUNC_URL=$(aws lambda get-function-url-config \
   --query 'FunctionUrl' --output text 2>/dev/null || echo "")
 
 if [ -z "$FUNC_URL" ] || [ "$FUNC_URL" = "None" ]; then
+  # Write CORS config to temp file to avoid CLI escaping issues
+  CORS_FILE=$(mktemp)
+  cat > "$CORS_FILE" <<CORSEOF
+{
+  "AllowOrigins": ["${ALLOWED_ORIGIN}", "http://localhost:8080"],
+  "AllowMethods": ["POST"],
+  "AllowHeaders": ["Content-Type"],
+  "MaxAge": 86400
+}
+CORSEOF
+
   FUNC_URL=$(aws lambda create-function-url-config \
     --function-name "$FUNC_NAME" \
     --auth-type NONE \
-    --cors "{\"AllowOrigins\":[\"${ALLOWED_ORIGIN}\",\"http://localhost:8080\"],\"AllowMethods\":[\"POST\",\"OPTIONS\"],\"AllowHeaders\":[\"Content-Type\"],\"MaxAge\":86400}" \
+    --cors "file://${CORS_FILE}" \
     --region "$REGION" \
     --query 'FunctionUrl' --output text \
     --no-cli-pager)
+
+  rm -f "$CORS_FILE"
 
   # Allow public invocation
   aws lambda add-permission \

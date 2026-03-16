@@ -28,7 +28,7 @@ const CONFIG = {
 
 // LLM chat endpoint — paste your Lambda Function URL here after deploy
 const LLM_CONFIG = {
-  endpoint: '', // e.g. 'https://xxx.lambda-url.us-east-1.on.aws/'
+  endpoint: 'https://a2de3drcogfm7uxagwfsa2jjgm0iqxdj.lambda-url.us-east-1.on.aws/',
   maxHistory: 6,
 };
 
