@@ -85,33 +85,47 @@ class TerminalApp {
   /* ------------------------------------------------------------------ */
 
   setupListeners() {
+    this._isMobile = window.innerWidth <= 768;
     this._onKeyDown = (e) => this.onKeyDown(e);
     this._onInput = () => this.syncInput();
-    this._onClick = (e) => {
-      if (!window.getSelection().toString()) {
-        this.focus();
-      }
-    };
-
-    // Mobile: only focus (show keyboard) on tap, not on scroll
-    this._touchStartY = 0;
-    this._onTouchStart = (e) => {
-      this._touchStartY = e.touches[0].clientY;
-    };
-    this._onTouchEnd = (e) => {
-      const dy = Math.abs((e.changedTouches[0]?.clientY || 0) - this._touchStartY);
-      // If finger moved more than 10px, it's a scroll — don't focus
-      if (dy > 10) return;
-      if (!window.getSelection().toString()) {
-        this.focus();
-      }
-    };
 
     this.hiddenInput.addEventListener('keydown', this._onKeyDown);
     this.hiddenInput.addEventListener('input', this._onInput);
-    this.terminalEl.addEventListener('click', this._onClick);
-    this.terminalEl.addEventListener('touchstart', this._onTouchStart, { passive: true });
-    this.terminalEl.addEventListener('touchend', this._onTouchEnd);
+
+    if (this._isMobile) {
+      // Mobile: track touch to distinguish tap vs scroll
+      this._touchStartY = 0;
+      this._touchMoved = false;
+      this._onTouchStart = (e) => {
+        this._touchStartY = e.touches[0].clientY;
+        this._touchMoved = false;
+      };
+      this._onTouchMove = () => {
+        this._touchMoved = true;
+      };
+      this._onTouchEnd = (e) => {
+        // If finger moved, it was a scroll — don't show keyboard
+        if (this._touchMoved) return;
+        if (!window.getSelection().toString()) {
+          this.focus();
+        }
+      };
+      // Prevent click from also firing focus on mobile
+      this._onClick = (e) => { e.preventDefault(); };
+
+      this.terminalEl.addEventListener('touchstart', this._onTouchStart, { passive: true });
+      this.terminalEl.addEventListener('touchmove', this._onTouchMove, { passive: true });
+      this.terminalEl.addEventListener('touchend', this._onTouchEnd);
+      this.terminalEl.addEventListener('click', this._onClick);
+    } else {
+      // Desktop: focus on click
+      this._onClick = (e) => {
+        if (!window.getSelection().toString()) {
+          this.focus();
+        }
+      };
+      this.terminalEl.addEventListener('click', this._onClick);
+    }
   }
 
   /* ------------------------------------------------------------------ */
@@ -138,7 +152,8 @@ class TerminalApp {
     this.print('');
     this.booted = true;
     this.updatePrompt();
-    this.focus();
+    // Don't auto-focus on mobile — let user tap to show keyboard
+    if (!this._isMobile) this.focus();
   }
 
   /* ------------------------------------------------------------------ */
@@ -1002,8 +1017,9 @@ class TerminalApp {
     this.hiddenInput.removeEventListener('keydown', this._onKeyDown);
     this.hiddenInput.removeEventListener('input', this._onInput);
     this.terminalEl.removeEventListener('click', this._onClick);
-    this.terminalEl.removeEventListener('touchstart', this._onTouchStart);
-    this.terminalEl.removeEventListener('touchend', this._onTouchEnd);
+    if (this._onTouchStart) this.terminalEl.removeEventListener('touchstart', this._onTouchStart);
+    if (this._onTouchMove) this.terminalEl.removeEventListener('touchmove', this._onTouchMove);
+    if (this._onTouchEnd) this.terminalEl.removeEventListener('touchend', this._onTouchEnd);
 
     this.terminalEl.remove();
     this.hiddenInput.remove();
