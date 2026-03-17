@@ -140,8 +140,8 @@
   .window.maximized {
     top: 0 !important;
     left: 0 !important;
-    width: 100vw !important;
-    height: calc(100vh - 52px) !important;  /* leave room for mobile nav */
+    width: 100% !important;
+    height: 100% !important;  /* fill #desktop container (which has bottom: 52px) */
     border-radius: 0;
   }
 
