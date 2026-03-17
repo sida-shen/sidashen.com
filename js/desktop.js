@@ -89,8 +89,10 @@ const Desktop = {
       x: opts.x,
       y: opts.y,
       onFocus: (w) => {
+        // On mobile, don't auto-focus hidden input (would pop keyboard)
+        // User taps explicitly to open keyboard
         const app = this._apps[w.id];
-        if (app && app.focus) app.focus();
+        if (app && app.focus && !this.isMobile()) app.focus();
       },
       onClose: (w) => {
         const app = this._apps[w.id];
@@ -324,7 +326,6 @@ const Desktop = {
       if (existing.length > 0) {
         existing.forEach(w => {
           w.el.style.display = '';
-          this._apps[w.id]?.focus?.();
         });
       } else {
         this.openTerminal({ fullscreen: true });
