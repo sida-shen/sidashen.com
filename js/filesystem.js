@@ -312,33 +312,29 @@ const FS_TREE = {
 
 // =================================================================
 // Dynamic content directories — generated from CONTENT_DATA
+// One README.md per directory with a formatted listing.
 // =================================================================
 (function buildContentDirs() {
   if (typeof CONTENT_DATA === 'undefined') return;
 
-  function makeFileContent(item) {
-    return [
-      '# ' + item.title,
-      '',
-      'Source:  ' + item.source,
-      'Date:   ' + item.date,
-      'Tags:   ' + item.tags.join(', '),
-      '',
-      'Link: ' + item.url,
-    ].join('\n');
-  }
+  var labels = { blog: 'Blog', video: 'Talks & Webinars', interview: 'Interviews' };
 
   function buildDir(type) {
-    const items = ContentUtils.byType(type);
-    const children = {};
-    for (const item of items) {
-      children[item.id + '.md'] = {
-        type: 'file',
-        content: makeFileContent(item),
-        meta: { date: item.date, source: item.source, url: item.url, tags: item.tags },
-      };
+    var items = ContentUtils.byType(type).sort(function(a, b) { return b.date.localeCompare(a.date); });
+    var label = labels[type] || type;
+    var lines = ['# ' + label + ' (' + items.length + ')', ''];
+    for (var i = 0; i < items.length; i++) {
+      var it = items[i];
+      lines.push(it.title);
+      lines.push(it.date + ' · ' + it.source + ' · ' + it.url);
+      lines.push('');
     }
-    return { type: 'dir', children: children };
+    return {
+      type: 'dir',
+      children: {
+        'README.md': { type: 'file', content: lines.join('\n') },
+      },
+    };
   }
 
   FS_TREE.children['blog'] = buildDir('blog');
