@@ -113,6 +113,13 @@ class TerminalApp {
       this.terminalEl.addEventListener('touchstart', this._onTouchStart, { passive: true });
       this.terminalEl.addEventListener('touchmove', this._onTouchMove, { passive: true });
       this.terminalEl.addEventListener('click', this._onClick);
+
+      // When the mobile keyboard opens/closes, scroll to bottom so the
+      // input line stays visible above the keyboard.
+      if (window.visualViewport) {
+        this._onViewportResize = () => this.scrollToBottom();
+        window.visualViewport.addEventListener('resize', this._onViewportResize);
+      }
     } else {
       // Desktop: focus on click
       this._onClick = (e) => {
@@ -1015,6 +1022,9 @@ class TerminalApp {
     this.terminalEl.removeEventListener('click', this._onClick);
     if (this._onTouchStart) this.terminalEl.removeEventListener('touchstart', this._onTouchStart);
     if (this._onTouchMove) this.terminalEl.removeEventListener('touchmove', this._onTouchMove);
+    if (this._onViewportResize && window.visualViewport) {
+      window.visualViewport.removeEventListener('resize', this._onViewportResize);
+    }
 
     this.terminalEl.remove();
     this.hiddenInput.remove();
