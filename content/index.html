@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sida Shen — Content Portfolio</title>
+<style>
+  :root {
+    --bg: #fafafa;
+    --surface: #ffffff;
+    --text: #1a1a2e;
+    --muted: #64748b;
+    --accent: #2563eb;
+    --accent-light: #eff6ff;
+    --border: #e2e8f0;
+    --section-blog: #2563eb;
+    --section-starrocks: #7c3aed;
+    --section-medium: #059669;
+    --section-guest: #d97706;
+    --section-interview: #dc2626;
+    --section-conf: #0891b2;
+    --section-webinar: #e11d48;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .hero {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    color: #fff;
+    padding: 64px 24px 56px;
+    text-align: center;
+  }
+  .hero h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 12px;
+  }
+  .hero .tagline {
+    font-size: 1.05rem;
+    color: #94a3b8;
+    font-weight: 400;
+    margin-bottom: 28px;
+  }
+  .hero .profiles {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+  }
+  .hero .profiles a {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: #cbd5e1;
+    text-decoration: none;
+    padding: 7px 16px;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+  }
+  .hero .profiles a:hover {
+    background: rgba(255,255,255,0.15);
+    color: #fff;
+  }
+
+  .stats-bar {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    flex-wrap: wrap;
+    padding: 28px 24px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+  }
+  .stat {
+    text-align: center;
+  }
+  .stat .num {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--accent);
+  }
+  .stat .label {
+    font-size: 0.8rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 2px;
+  }
+
+  .container {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
+
+  .section {
+    margin-bottom: 40px;
+  }
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    padding: 16px 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px 12px 0 0;
+    user-select: none;
+    transition: background 0.15s;
+  }
+  .section-header:hover { background: #f8fafc; }
+  .section.collapsed .section-header { border-radius: 12px; }
+  .section-header h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-header .dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+  .section-header .count {
+    background: var(--accent-light);
+    color: var(--accent);
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 999px;
+  }
+  .section-header .chevron {
+    font-size: 1.2rem;
+    color: var(--muted);
+    transition: transform 0.2s;
+  }
+  .section.collapsed .chevron { transform: rotate(-90deg); }
+
+  .section-body {
+    border: 1px solid var(--border);
+    border-top: none;
+    border-radius: 0 0 12px 12px;
+    overflow: hidden;
+    background: var(--surface);
+  }
+  .section.collapsed .section-body { display: none; }
+
+  .item-list { list-style: none; }
+  .item-list li {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    padding: 11px 20px;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 0.92rem;
+    transition: background 0.1s;
+  }
+  .item-list li:last-child { border-bottom: none; }
+  .item-list li:hover { background: #f8fafc; }
+  .item-list .num {
+    color: var(--muted);
+    font-size: 0.78rem;
+    font-variant-numeric: tabular-nums;
+    min-width: 22px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+  .item-list a {
+    color: var(--text);
+    text-decoration: none;
+    flex: 1;
+  }
+  .item-list a:hover { color: var(--accent); }
+  .item-list .pub {
+    color: var(--muted);
+    font-size: 0.78rem;
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+
+  .playlist-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 20px;
+    font-size: 0.85rem;
+    color: var(--muted);
+    border-bottom: 1px solid #f1f5f9;
+    width: 100%;
+  }
+  .playlist-link a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+  .playlist-link a:hover { text-decoration: underline; }
+
+  .conf-table { width: 100%; border-collapse: collapse; }
+  .conf-table td {
+    padding: 11px 20px;
+    font-size: 0.92rem;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: top;
+  }
+  .conf-table tr:last-child td { border-bottom: none; }
+  .conf-table tr:hover td { background: #f8fafc; }
+  .conf-table .event-name { font-weight: 600; }
+  .conf-table .session-desc { color: var(--muted); font-size: 0.85rem; }
+  .conf-table a { color: var(--accent); text-decoration: none; font-size: 0.85rem; }
+  .conf-table a:hover { text-decoration: underline; }
+
+  footer {
+    text-align: center;
+    padding: 32px 24px;
+    color: var(--muted);
+    font-size: 0.8rem;
+    border-top: 1px solid var(--border);
+  }
+
+  @media (max-width: 640px) {
+    .hero h1 { font-size: 1.8rem; }
+    .stats-bar { gap: 20px; }
+    .stat .num { font-size: 1.4rem; }
+    .item-list li { padding: 10px 14px; font-size: 0.87rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>Sida Shen</h1>
+  <p class="tagline">Product Manager at CelerData &middot; StarRocks Contributor &middot; Lakehouse &middot; Real-Time Analytics &middot; AI Agents</p>
+  <div class="profiles">
+    <a target="_blank" rel="noopener" href="https://sidashen.com">sidashen.com</a>
+    <a target="_blank" rel="noopener" href="https://celerdata.com/blog/author/sida-shen">CelerData Blog</a>
+    <a target="_blank" rel="noopener" href="https://www.starrocks.io/blog/author/sida-shen">StarRocks Blog</a>
+    <a target="_blank" rel="noopener" href="https://thenewstack.io/author/sida-shen/">The New Stack</a>
+    <a target="_blank" rel="noopener" href="https://medium.com/starrocks-engineering">Medium</a>
+    <a target="_blank" rel="noopener" href="https://www.linkedin.com/in/sida-shen-165303193/">LinkedIn</a>
+  </div>
+</div>
+
+<div class="stats-bar">
+  <div class="stat"><div class="num">38</div><div class="label">CelerData Blog</div></div>
+  <div class="stat"><div class="num">20</div><div class="label">StarRocks Blog</div></div>
+  <div class="stat"><div class="num">4</div><div class="label">Medium</div></div>
+  <div class="stat"><div class="num">8</div><div class="label">Guest Posts</div></div>
+  <div class="stat"><div class="num">4</div><div class="label">Interviews</div></div>
+  <div class="stat"><div class="num">45</div><div class="label">Talks & Webinars</div></div>
+</div>
+
+<div class="container">
+
+  <!-- CelerData Blog -->
+  <div class="section" id="celerdata">
+    <div class="section-header" onclick="this.parentElement.classList.toggle('collapsed')">
+      <h2><span class="dot" style="background:var(--section-blog)"></span>Writing — CelerData Blog<span class="count">38</span></h2>
+      <span class="chevron">&#9662;</span>
+    </div>
+    <div class="section-body">
+      <ol class="item-list">
+        <li><span class="num">1</span><a target="_blank" rel="noopener" href="https://celerdata.com/blog/from-snowflake-to-starrocksapache-iceberg-how-fanatics-cut-90-of-analytics-cost-at-6pb-scale">From Snowflake to StarRocks+Apache Iceberg: How Fanatics Cut 90% of Analytics Cost at 6PB Scale</a></li>
+        <li><span class="num">2</span><a target="_blank" rel="noopener" href="https://celerdata.com/blog/2026-is-when-open-data-real-time-analytics-and-ai-agents-converge">2026 Is When Open Data, Real-Time Analytics and AI Agents Converge</a></li>
+        <li><span class="num">3</span><a target="_blank" rel="noopener" href="https://celerdata.com/blog/from-hours-to-seconds-how-yuno-accelerated-customer-facing-analytics-by-switching-off-snowflake-and-athena">From Hours to Seconds: How Yuno Accelerated Customer-Facing Analytics By Switching Off Snowflake and Athena</a></li>
+        <li><span class="num">4</span><a target="_blank" rel="noopener" href="https://celerdata.com/blog/starrocks-4.0-bringing-native-columnar-performance-to-json">StarRocks 4.0: Bringing Native Columnar Performance to JSON</a></li>
+        <li><span class="num">5</span><a target="_blank" rel="noopener" href="https://celerdata.com/blog/starrocks-4.0-delivering-query-ready-data-to-apache-iceberg">StarRocks 4.0: Delivering Query-Ready Data to Apache Iceberg</a></li>
+        <li><span class="num">6</span><a target="_blank" rel="noopener" href="https://celerdata.com/blog/announcing-starrocks-4.0-open-fast-governed">Announcing StarRocks 4.0: Open, Fast, Governed</a></li>
+        <li><span class="num">7</span><a target="_blank" rel="noopener" href="https://celerdata.com/blog/data-skew-in-customer-facing-analytics-the-hidden-cost-behind-latency">Data Skew in Customer-Facing Analytics: The Hidden Cost Behind Latency</a></li>
+        <li><span class="num">8</span><a target="_blank" rel="noopener" href="https://celerdata.com/blog/why-customer-facing-analytics-needs-more-than-just-fast">Why Customer-Facing Analytics Needs More Than Just Fast</a></li>
+        <li><span class="num">9</span><a target="_blank" rel="noopener" href="https://celerdata.com/blog/customer-facing-analytics-without-denormalizing-everything">Customer-Facing Analytics Without Denormalizing Everything</a></li>
+        <li><span class="num">10</span><a target="_blank" rel="noopener" href="https://celerdata.com/blog/demandbase-ditches-denormalization-by-switching-off-clickhouse">Demandbase Ditches Denormalization By Switching off ClickHouse</a></li>
+        <li><span class="num">11</span><a target="_blank" rel="noopener" href="https://celerdata.com/blog/starrocks-connector-for-tableau-is-now-officially-verified">StarRocks Connector for Tableau is Now Officially Verified</a></li>
+        <li><span class="num">12</span><a target="_blank" rel="noopener" href="https://celerdata.com/blog/celerdata-joins-the-connect-with-confluent-partner-program">CelerData Joins the Connect With Confluent Partner Program</a></li>
+        <li><span class="num">13</span><a target="_blank" rel="noopener" href="https://celerdata.com/blog/celerdata-quarterly-update-automatic-materialized-views-and-more">CelerData Quarterly Update: Automatic Materialized Views and More</a></li>
+        <li><span class="num">14</span><a target="_blank" rel="noopener" href="https://celerdata.com/blog/announcing-ga-of-aws-graviton-support-on-celerdata-cloud-byoc">Announcing GA of AWS Graviton Support on CelerData Cloud BYOC</a></li>
+        <li><span class="num">15</span><a target="_blank" rel="noopener" href="https://celerdata.com/blog/verisoul-enables-real-time-analytics-by-transitioning-off-bigquery">Verisoul Enables Real-Time Analytics by Transitioning off BigQuery</a></li>
+        <li><span class="num">16</span><a target="_blank" rel="noopener" href="https://celerdata.com/blog/5-brilliant-lakehouse-architectures-from-tencent-wechat-and-more">5 Brilliant Lakehouse Architectures from Tencent, WeChat, and More</a></li>
+        <li><span class="num">17</span><a target="_blank" rel="noopener" href="https://celerdata.com/blog/3-data-lakehouse-predictions-for-2024">3 Data Lakehouse Predictions for 2024</a></li>
+        <li><span class="num">18</span><a target="_blank" rel="noopener" href="https://celerdata.com/blog/how-to-seamlessly-accelerate-data-lake-queries">How to Seamlessly Accelerate Data Lake Queries</a></li>
+        <li><span class="num">19</span><a target="_blank" rel="noopener" href="https://celerdata.com/blog/trino-vs-starrocks-how-to-get-data-warehouse-performance-on-the-data-lakehouse">Trino vs. StarRocks: Get Data Warehouse Performance on the Data Lake</a></li>
+        <li><span class="num">20</span><a target="_blank" rel="noopener" href="https://celerdata.com/blog/why-apache-druid-cant-handle-modern-real-time-analytics">Why Apache Druid Can't Handle Modern Real-Time Analytics</a></li>
+        <li><span class="num">21</span><a target="_blank" rel="noopener" href="https://celerdata.com/blog/celerdata-x-dbta-go-pipeline-free-with-real-time-analytics">CelerData X DBTA: Go Pipeline-Free With Real-Time Analytics</a></li>
+        <li><span class="num">22</span><a target="_blank" rel="noopener" href="https://celerdata.com/blog/ditch-denormalization-in-real-time-analytics-with-joins">Ditch Denormalization in Real-Time Analytics With JOINs</a></li>
+        <li><span class="num">23</span><a target="_blank" rel="noopener" href="https://celerdata.com/blog/denormalizing-tables-to-avoid-joins-pros-cons-and-alternatives">Denormalizing Tables To Avoid JOINs: Pros, Cons, and Alternatives</a></li>
+        <li><span class="num">24</span><a target="_blank" rel="noopener" href="https://celerdata.com/blog/answering-questions-about-starrocks-vs.-clickhouse">Answering Questions About StarRocks vs. ClickHouse</a></li>
+        <li><span class="num">25</span><a target="_blank" rel="noopener" href="https://celerdata.com/blog/from-denormalization-to-joins-why-clickhouse-cannot-keep-up">From Denormalization to Joins: Why ClickHouse Cannot Keep Up</a></li>
+        <li><span class="num">26</span><a target="_blank" rel="noopener" href="https://celerdata.com/blog/what-is-user-behavior-analytics">What Is User Behavior Analytics?</a></li>
+        <li><span class="num">27</span><a target="_blank" rel="noopener" href="https://celerdata.com/blog/what-is-real-time-analytics">What Is Real-Time Analytics?</a></li>
+        <li><span class="num">28</span><a target="_blank" rel="noopener" href="https://celerdata.com/blog/why-achieving-real-time-user-facing-analytics-is-hard">Why Achieving Real-Time User-Facing Analytics Is Hard</a></li>
+        <li><span class="num">29</span><a target="_blank" rel="noopener" href="https://celerdata.com/blog/how-expensive-is-real-time-analytics">How Expensive is Real-Time Analytics?</a></li>
+        <li><span class="num">30</span><a target="_blank" rel="noopener" href="https://celerdata.com/blog/how-real-time-analytics-works-a-step-by-step-breakdown">How Real-Time Analytics Works: A Step-by-Step Breakdown</a></li>
+        <li><span class="num">31</span><a target="_blank" rel="noopener" href="https://celerdata.com/blog/what-is-user-facing-analytics">What Is User-Facing Analytics?</a></li>
+        <li><span class="num">32</span><a target="_blank" rel="noopener" href="https://celerdata.com/blog/is-join-a-luxury-in-real-time-analytics">Is JOIN a Luxury in Real-Time Analytics?</a></li>
+        <li><span class="num">33</span><a target="_blank" rel="noopener" href="https://celerdata.com/blog/how-to-simplify-your-real-time-analytics-pipeline">How To Simplify Your Real-Time Analytics Pipeline</a></li>
+        <li><span class="num">34</span><a target="_blank" rel="noopener" href="https://celerdata.com/blog/is-real-time-analytics-worth-the-real-time-cost">Is Real-Time Analytics Worth the Real-Time Cost?</a></li>
+        <li><span class="num">35</span><a target="_blank" rel="noopener" href="https://celerdata.com/blog/real-time-analytics-is-it-really-for-everyone">Real-Time Analytics: Is It Really for Everyone?</a></li>
+        <li><span class="num">36</span><a target="_blank" rel="noopener" href="https://celerdata.com/blog/debunking-the-biggest-myths-about-real-time-analytics">Debunking The Biggest Myths About Real-Time Analytics</a></li>
+        <li><span class="num">37</span><a target="_blank" rel="noopener" href="https://celerdata.com/blog/starrocks-a-game-changer-in-real-time-analytics">StarRocks: A Game-Changer in Real-Time Analytics</a></li>
+        <li><span class="num">38</span><a target="_blank" rel="noopener" href="https://celerdata.com/blog/real-time-analytics-for-the-modern-enterprise">Real-Time Analytics for the Modern Enterprise</a></li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- StarRocks Blog -->
+  <div class="section" id="starrocks">
+    <div class="section-header" onclick="this.parentElement.classList.toggle('collapsed')">
+      <h2><span class="dot" style="background:var(--section-starrocks)"></span>Writing — StarRocks Blog<span class="count">20</span></h2>
+      <span class="chevron">&#9662;</span>
+    </div>
+    <div class="section-body">
+      <ol class="item-list">
+        <li><span class="num">1</span><a target="_blank" rel="noopener" href="https://www.starrocks.io/blog/delivering-faster-analytics-at-pinterest">Delivering Faster Analytics at Pinterest</a></li>
+        <li><span class="num">2</span><a target="_blank" rel="noopener" href="https://www.starrocks.io/blog/how-didi-transformed-real-time-risk-engineering-with-starrocks">How DiDi Transformed Real-Time Risk Engineering with StarRocks</a></li>
+        <li><span class="num">3</span><a target="_blank" rel="noopener" href="https://www.starrocks.io/blog/customer-facing-analytics-meets-agents-eightfolds-move-from-redshift-to-starrocks">Customer-Facing Analytics Meets Agents: Eightfold's Move from Redshift to StarRocks</a></li>
+        <li><span class="num">4</span><a target="_blank" rel="noopener" href="https://www.starrocks.io/blog/analytical-agents-new-challenges-for-the-underlying-data-infrastructure">Analytical Agents — New Challenges for the Underlying Data Infrastructure</a></li>
+        <li><span class="num">5</span><a target="_blank" rel="noopener" href="https://www.starrocks.io/blog/35-webinar-qa-recap-starrocks-security-iceberg-support-and-more">3.5 Webinar Q&amp;A Recap: StarRocks Security, Iceberg Support, and More</a></li>
+        <li><span class="num">6</span><a target="_blank" rel="noopener" href="https://www.starrocks.io/blog/introducing-starrocks-3-5">Introducing StarRocks 3.5</a></li>
+        <li><span class="num">7</span><a target="_blank" rel="noopener" href="https://www.starrocks.io/blog/introducing-starrocks-3.4">Introducing StarRocks 3.4</a></li>
+        <li><span class="num">8</span><a target="_blank" rel="noopener" href="https://www.starrocks.io/blog/accelerate-customer-facing-analytics-on-open-lakehouses-with-caching">Accelerate Customer-Facing Analytics on Open Lakehouses With Caching</a></li>
+        <li><span class="num">9</span><a target="_blank" rel="noopener" href="https://www.starrocks.io/blog/build-a-more-open-lakehouse-with-unity-catalog">Build a More Open Lakehouse With Unity Catalog</a></li>
+        <li><span class="num">10</span><a target="_blank" rel="noopener" href="https://www.starrocks.io/blog/how-to-accelerate-iceberg-metadata-retrieval">How to Accelerate Iceberg Metadata Retrieval</a></li>
+        <li><span class="num">11</span><a target="_blank" rel="noopener" href="https://www.starrocks.io/blog/the-answer-to-the-data-upsert-challenge-in-real-time-analytics">The Answer to the Data Upsert Challenge in Real-Time Analytics</a></li>
+        <li><span class="num">12</span><a target="_blank" rel="noopener" href="https://www.starrocks.io/blog/how-to-accelerate-semi-structured-data-analytics">How To Accelerate Semi-Structured Data Analytics</a></li>
+        <li><span class="num">13</span><a target="_blank" rel="noopener" href="https://www.starrocks.io/blog/starrocks-3.3-is-out-features-and-improvements">StarRocks 3.3 Is Out: Features and Improvements</a></li>
+        <li><span class="num">14</span><a target="_blank" rel="noopener" href="https://www.starrocks.io/blog/a-top-social-app-boosts-query-speeds-on-its-exabyte-scale-data-lake">A Top Social App Boosts Query Speeds on Its Exabyte-Scale Data Lake</a></li>
+        <li><span class="num">15</span><a target="_blank" rel="noopener" href="https://www.starrocks.io/blog/how-wechats-data-lakehouse-architecture-enhances-efficiency-for-trillions-of-daily-records">How WeChat's Lakehouse Design Efficiently Handles Trillions of Records</a></li>
+        <li><span class="num">16</span><a target="_blank" rel="noopener" href="https://www.starrocks.io/blog/tencents-abetterchoice-platform-unifies-all-sql-workloads-on-the-data-lakehouse">Tencent's A/B Test Platform Unifies All SQL Workloads On The Lakehouse</a></li>
+        <li><span class="num">17</span><a target="_blank" rel="noopener" href="https://www.starrocks.io/blog/trip.com-ditches-their-data-warehouse-with-starrocks">Trip.com Ditches Their Data Warehouse With StarRocks</a></li>
+        <li><span class="num">18</span><a target="_blank" rel="noopener" href="https://www.starrocks.io/blog/tencent-unifies-their-gaming-analytics-with-starrocks">Tencent Unifies Their Gaming Analytics With StarRocks</a></li>
+        <li><span class="num">19</span><a target="_blank" rel="noopener" href="https://www.starrocks.io/blog/starrocks-olap-workloads-with-starrocks-query-cache">High-Concurrency OLAP Workloads with StarRocks Query Cache</a></li>
+        <li><span class="num">20</span><a target="_blank" rel="noopener" href="https://www.starrocks.io/blog/the-open-data-lakehouse-democratized-data-analytics">The Open Data Lakehouse: Towards Democratized Data Analytics</a></li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- Medium -->
+  <div class="section" id="medium">
+    <div class="section-header" onclick="this.parentElement.classList.toggle('collapsed')">
+      <h2><span class="dot" style="background:var(--section-medium)"></span>Writing — Medium (StarRocks Engineering)<span class="count">4</span></h2>
+      <span class="chevron">&#9662;</span>
+    </div>
+    <div class="section-body">
+      <ol class="item-list">
+        <li><span class="num">1</span><a target="_blank" rel="noopener" href="https://medium.com/starrocks-engineering/databricks-iceberg-managed-table-explained-8b86551b2703">Databricks Iceberg Managed Table Explained</a></li>
+        <li><span class="num">2</span><a target="_blank" rel="noopener" href="https://medium.com/starrocks-engineering/rockset-is-acquired-by-openai-what-does-it-mean-for-its-users-3fa9561979d2">Rockset Is Acquired by OpenAI. What Does It Mean for Its Users?</a></li>
+        <li><span class="num">3</span><a target="_blank" rel="noopener" href="https://medium.com/starrocks-engineering/detailed-comparison-between-starrocks-and-apache-doris-81ddd34be527">Detailed Comparison Between StarRocks and Apache Doris</a></li>
+        <li><span class="num">4</span><a target="_blank" rel="noopener" href="https://medium.com/starrocks-engineering/recap-of-the-starrocks-3-0-community-call-feature-highlights-and-q-a-e6f71ea3e7b2">Recap of the StarRocks 3.0 Community Call — Feature Highlights and Q&amp;A</a></li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- Guest Posts -->
+  <div class="section" id="guest">
+    <div class="section-header" onclick="this.parentElement.classList.toggle('collapsed')">
+      <h2><span class="dot" style="background:var(--section-guest)"></span>Writing — Guest Posts &amp; External Publications<span class="count">8</span></h2>
+      <span class="chevron">&#9662;</span>
+    </div>
+    <div class="section-body">
+      <ol class="item-list">
+        <li><span class="num">1</span><a target="_blank" rel="noopener" href="https://delta.io/blog/starrocks-kernel/">Delta Kernel: A Game-Changer for Customer-Facing Analytics</a><span class="pub">delta.io</span></li>
+        <li><span class="num">2</span><a target="_blank" rel="noopener" href="https://thenewstack.io/how-to-get-data-warehouse-performance-on-the-data-lakehouse/">How to Get Data Warehouse Performance on the Data Lakehouse</a><span class="pub">The New Stack</span></li>
+        <li><span class="num">3</span><a target="_blank" rel="noopener" href="https://thenewstack.io/whats-pipeline-free-real-time-data-analytics/">What's 'Pipeline-Free' Real-Time Data Analytics?</a><span class="pub">The New Stack</span></li>
+        <li><span class="num">4</span><a target="_blank" rel="noopener" href="https://thenewstack.io/navigating-the-high-concurrency-challenges-of-user-facing-analytics/">Navigating the High-Concurrency Challenges of User-Facing Analytics</a><span class="pub">The New Stack</span></li>
+        <li><span class="num">5</span><a target="_blank" rel="noopener" href="https://thenewstack.io/how-to-go-pipeline-free-with-your-real-time-analytics/">How to Go Pipeline-Free with Your Real-Time Analytics</a><span class="pub">The New Stack</span></li>
+        <li><span class="num">6</span><a target="_blank" rel="noopener" href="https://thenewstack.io/celerdata-upends-real-time-data-analytics-with-dynamic-table-joins/">CelerData Upends Real-Time Data Analytics with Dynamic Table Joins</a><span class="pub">The New Stack</span></li>
+        <li><span class="num">7</span><a target="_blank" rel="noopener" href="http://insideainews.com/2024/04/22/the-solution-to-data-in-motion-is-to-just-stop/">The Solution to Data in Motion Is to Just Stop</a><span class="pub">insideAI News</span></li>
+        <li><span class="num">8</span><a target="_blank" rel="noopener" href="https://preset.io/blog/accelerating-apache-superset-dashboards-with-materialized-views/">Accelerating Apache Superset Dashboards With Materialized Views</a><span class="pub">Preset.io</span></li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- Interviews -->
+  <div class="section" id="interviews">
+    <div class="section-header" onclick="this.parentElement.classList.toggle('collapsed')">
+      <h2><span class="dot" style="background:var(--section-interview)"></span>Interviews &amp; Press<span class="count">4</span></h2>
+      <span class="chevron">&#9662;</span>
+    </div>
+    <div class="section-body">
+      <ol class="item-list">
+        <li><span class="num">1</span><a target="_blank" rel="noopener" href="https://medium.com/authority-magazine/sida-shen-of-celerdata-on-how-to-leverage-data-to-take-your-company-to-the-next-level-ce5a1c41d960">Sida Shen of CelerData On How To Leverage Data To Take Your Company To The Next Level</a><span class="pub">Authority Magazine</span></li>
+        <li><span class="num">2</span><a target="_blank" rel="noopener" href="https://tfir.io/celerdata-enables-data-engineers-to-build-new-analytics-projects-faster-sida-shen/">CelerData Enables Data Engineers To Build New Analytics Projects Faster</a><span class="pub">TFiR</span></li>
+        <li><span class="num">3</span><a target="_blank" rel="noopener" href="https://www.truthinit.com/index.php/video/3731/celerdata-breaking-the-data-pipeline-for-real-time-analytics/">CelerData: Breaking the Data Pipeline for Real-Time Analytics</a><span class="pub">Truth in IT</span></li>
+        <li><span class="num">4</span><a target="_blank" rel="noopener" href="https://www.dataengineeringpodcast.com/episodepage/starrocks-high-performance-lakehouse-and-olap-episode-463">StarRocks: Bridging Lakehouse and OLAP for High-Performance Analytics</a><span class="pub">Data Eng Podcast</span></li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- Webinars & Conferences -->
+  <div class="section" id="webinars">
+    <div class="section-header" onclick="this.parentElement.classList.toggle('collapsed')">
+      <h2><span class="dot" style="background:var(--section-webinar)"></span>Speaking — Webinars &amp; Conferences<span class="count">45</span></h2>
+      <span class="chevron">&#9662;</span>
+    </div>
+    <div class="section-body">
+      <div class="playlist-link">Full playlist: <a target="_blank" rel="noopener" href="https://www.youtube.com/playlist?list=PLTXHtKIqm__dqxZYV8oQ-l7tRpSnftjmy">youtube.com/playlist</a></div>
+      <ol class="item-list">
+        <li><span class="num">1</span><a target="_blank" rel="noopener" href="https://www.databricks.com/dataaisummit/speaker/sida-shen">Databricks Data+AI Summit 2024</a><span class="pub">Conference</span></li>
+        <li><span class="num">2</span><a target="_blank" rel="noopener" href="https://summit.starrocks.io/2025">StarRocks Summit 2025 — Announcing StarRocks 4.0</a><span class="pub">Conference</span></li>
+        <li><span class="num">3</span><a target="_blank" rel="noopener" href="https://x.com/StarRocksLabs/status/1879211873788145773">StarRocks Year-in-Review 2024</a><span class="pub">Conference</span></li>
+        <li><span class="num">4</span><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=UTRcEqcTx4g">Data Warehouse Performance on the Data Lakehouse</a></li>
+        <li><span class="num">5</span><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=36pZag6KKcs">How Conductor Builds Sub Second Agentic Analytics at Scale</a></li>
+        <li><span class="num">6</span><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=8Q5Vev4O1lQ">Apache Iceberg + StarRocks: Your Recipe for Superior Lakehouse Performance</a></li>
+        <li><span class="num">7</span><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=4OBZc45OoNg">Customer Facing Analytics: How to Choose a Real Time Cloud Data Warehouse</a></li>
+        <li><span class="num">8</span><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=1xvFZskEp1o">From Denormalization to JOINS: Why ClickHouse Can't Keep Up</a></li>
+        <li><span class="num">9</span><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=KyyVBzjP6A0">What's Next for Lakehouse in 2025 With Databricks and CelerData</a></li>
+        <li><span class="num">10</span><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=6SRBUrW1MOc">Why Customer-Facing Analytics Breaks—and How to Build It Right</a></li>
+        <li><span class="num">11</span><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=NHi-0QpMXBA">Introducing StarRocks 3.4</a></li>
+        <li><span class="num">12</span><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=WpHGIPwE1is">Stream Processing Must Haves</a></li>
+        <li><span class="num">13</span><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=r_b8dyKvf1I">CelerData Quarterly Update: Automatic Materialized Views and More</a></li>
+        <li><span class="num">14</span><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=mu9ZqDSqJ44">Zero to Hero: Customer-Facing Analytics on Lakehouse in Under an Hour</a></li>
+        <li><span class="num">15</span><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=yqmnboDFyLA">Demandbase Ditches Denormalization By Switching off ClickHouse</a></li>
+        <li><span class="num">16</span><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=8Bpn4wkY9lY">StarRocks 3.3 is Here: Key Features and Improvements</a></li>
+        <li><span class="num">17</span><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=2cvIZY4EDak">Xiaohongshu/RedNote's Secret for Customer-Facing Analytics With 200M+ Users</a></li>
+        <li><span class="num">18</span><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=EMsYkabJVpQ">CelerData Enables Data Engineers To Build New Analytics Projects Faster (TFiR)</a></li>
+        <li><span class="num">19</span><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=K8Ji1uWws8A">Introducing StarRocks 3.5</a></li>
+        <li><span class="num">20</span><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=lK2YeiT8OX4">Engineering Insights from Pinterest: Customer-Facing Analytics that Pays</a></li>
+        <li><span class="num">21</span><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=qNk_-QTZk3E">Customer-Facing Analytics Meets Agents: Eightfold's Journey Beyond Redshift</a></li>
+        <li><span class="num">22</span><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=2Hhrn2jPSRk">5 Brilliant Lakehouse Architectures from Tencent, WeChat, and More</a></li>
+        <li><span class="num">23</span><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=rHZTBbZOgWM">Query Engine Must-Haves for the Best Apache Superset Experience</a></li>
+        <li><span class="num">24</span><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=UoGbJS0CHHw">Bringing Data Warehouse Performance to Apache Iceberg</a></li>
+        <li><span class="num">25</span><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=jEmyWWFvBi8">Governed, Fast, and Open: Better Customer-Facing With Unity Catalog</a></li>
+        <li><span class="num">26</span><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=_MkcCgvYmw8">Real-Time Analytics for Web3: Fraud Detection, Trading, and Growth at Scale</a></li>
+        <li><span class="num">27</span><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=_aciC8XCtN4">StarRocks: Bridging Lakehouse and OLAP for High-Performance Analytics</a></li>
+        <li><span class="num">28</span><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=S2Fsb8BoEPI">Unity Catalog Community Meetup — Spice Integration</a></li>
+        <li><span class="num">29</span><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=RfXO5GOnbW4">What Is StarRocks: Features and Use Cases</a></li>
+        <li><span class="num">30</span><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=1Ehnmtl60dQ">Trino Vs StarRocks — How to Get Data Warehouse Performance on the Lakehouse</a></li>
+        <li><span class="num">31</span><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=T1iOZ67jOD8">Ditching Denormalization in Real-time Analytics: How StarRocks Delivers Superior JOIN Performance</a></li>
+        <li><span class="num">32</span><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=qs4RQ37h_dI">StarRocks Virtual Meetup: Version 3.3.x and What's Next</a></li>
+        <li><span class="num">33</span><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=fhalIaRVIdU">The Register &amp; CelerData: Ditch Your Data Warehouse with Superior Lakehouse Performance</a></li>
+        <li><span class="num">34</span><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=xfnNjsXgYhs">Rockset Acquired by OpenAI: What's Next for Its Users?</a></li>
+        <li><span class="num">35</span><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=3jis0HzmD2A">StarRocks at Fresha: Carving Streams into Rock</a></li>
+        <li><span class="num">36</span><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=R3F9MPxZDIY">How to Boost Your Data Lake Performance with Materialized Views</a></li>
+        <li><span class="num">37</span><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=SlNoPXBm4EY">What's new with StarRocks 3.0</a></li>
+        <li><span class="num">38</span><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=wgJaB_PuHO4">Why Apache Druid Can't Handle Modern Real-Time Analytics and What to Do About It</a></li>
+        <li><span class="num">39</span><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=8ZhWCRObH6M">How to Make User Behavior Analytics Work for You</a></li>
+        <li><span class="num">40</span><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=ky6swN5VUG4">DZone FireSide Chats: How to Go Pipeline Free With Real Time Analytics</a></li>
+        <li><span class="num">41</span><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=60QCCqjy1OA">User-facing Analytics (UFA), Challenges, Data Analytics and more!</a></li>
+        <li><span class="num">42</span><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=CVDorXdpS4Q">CelerData X DBTA — Go Pipeline-Free With Real-Time Analytics</a></li>
+        <li><span class="num">43</span><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=_leXtu5IGEs">How to Develop User Facing Analytics Projects That Scale</a></li>
+        <li><span class="num">44</span><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=TvcXQX0jSGE">StarRocks on AWS</a></li>
+        <li><span class="num">45</span><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=4hWcCQtj9RE">StarRocks Virtual Office Hours — What's New and Exciting with StarRocks 2.4.0</a></li>
+      </ol>
+    </div>
+  </div>
+
+</div>
+
+<footer>Last updated: March 17, 2026</footer>
+
+</body>
+</html>
