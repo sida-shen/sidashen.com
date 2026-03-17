@@ -93,29 +93,25 @@ class TerminalApp {
     this.hiddenInput.addEventListener('input', this._onInput);
 
     if (this._isMobile) {
-      // Mobile: track touch to distinguish tap vs scroll
-      this._touchStartY = 0;
+      // Mobile: track touch to distinguish tap vs scroll.
+      // iOS Safari only opens the keyboard from a 'click' event handler,
+      // so we use click (not touchend) to call focus(), gated by _touchMoved.
       this._touchMoved = false;
-      this._onTouchStart = (e) => {
-        this._touchStartY = e.touches[0].clientY;
+      this._onTouchStart = () => {
         this._touchMoved = false;
       };
       this._onTouchMove = () => {
         this._touchMoved = true;
       };
-      this._onTouchEnd = (e) => {
-        // If finger moved, it was a scroll — don't show keyboard
-        if (this._touchMoved) return;
-        if (!window.getSelection().toString()) {
+      this._onClick = () => {
+        // Only open keyboard if it was a tap (no scroll movement)
+        if (!this._touchMoved && !window.getSelection().toString()) {
           this.focus();
         }
       };
-      // Prevent click from also firing focus on mobile
-      this._onClick = (e) => { e.preventDefault(); };
 
       this.terminalEl.addEventListener('touchstart', this._onTouchStart, { passive: true });
       this.terminalEl.addEventListener('touchmove', this._onTouchMove, { passive: true });
-      this.terminalEl.addEventListener('touchend', this._onTouchEnd);
       this.terminalEl.addEventListener('click', this._onClick);
     } else {
       // Desktop: focus on click
@@ -1019,7 +1015,6 @@ class TerminalApp {
     this.terminalEl.removeEventListener('click', this._onClick);
     if (this._onTouchStart) this.terminalEl.removeEventListener('touchstart', this._onTouchStart);
     if (this._onTouchMove) this.terminalEl.removeEventListener('touchmove', this._onTouchMove);
-    if (this._onTouchEnd) this.terminalEl.removeEventListener('touchend', this._onTouchEnd);
 
     this.terminalEl.remove();
     this.hiddenInput.remove();
