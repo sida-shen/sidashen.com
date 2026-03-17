@@ -186,6 +186,14 @@
   text-align: right;
 }
 
+.explorer-list-date {
+  width: 70px;
+  color: #888;
+  font-size: 12px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
 /* --- Empty State --- */
 .explorer-empty {
   color: #666;

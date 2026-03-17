@@ -245,6 +245,9 @@ class ExplorerApp {
     const list = document.createElement('div');
     list.className = 'explorer-list-view';
 
+    // Detect content directories that have date metadata
+    const isContentDir = ['~/blog', '~/video', '~/interviews'].includes(this.cwd);
+
     for (const entry of entries) {
       const row = document.createElement('div');
       row.className = 'explorer-list-row';
@@ -258,18 +261,28 @@ class ExplorerApp {
       name.className = 'explorer-list-name';
       name.textContent = entry.name;
 
-      const type = document.createElement('div');
-      type.className = 'explorer-list-type';
-      type.textContent = entry.type === 'dir' ? 'Folder' : this.getFileType(entry.name);
+      // Show date column in content directories
+      if (isContentDir && entry.node && entry.node.meta && entry.node.meta.date) {
+        const date = document.createElement('div');
+        date.className = 'explorer-list-date';
+        date.textContent = entry.node.meta.date;
+        row.appendChild(icon);
+        row.appendChild(name);
+        row.appendChild(date);
+      } else {
+        const type = document.createElement('div');
+        type.className = 'explorer-list-type';
+        type.textContent = entry.type === 'dir' ? 'Folder' : this.getFileType(entry.name);
 
-      const size = document.createElement('div');
-      size.className = 'explorer-list-size';
-      size.textContent = entry.type === 'dir' ? '—' : this.formatSize(entry.node.content.length);
+        const size = document.createElement('div');
+        size.className = 'explorer-list-size';
+        size.textContent = entry.type === 'dir' ? '—' : this.formatSize(entry.node.content.length);
 
-      row.appendChild(icon);
-      row.appendChild(name);
-      row.appendChild(type);
-      row.appendChild(size);
+        row.appendChild(icon);
+        row.appendChild(name);
+        row.appendChild(type);
+        row.appendChild(size);
+      }
 
       // Single click to select
       row.addEventListener('click', (e) => {

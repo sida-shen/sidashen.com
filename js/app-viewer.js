@@ -49,6 +49,22 @@ class ViewerApp {
     this.toolbarEl.appendChild(this.backBtn);
     this.toolbarEl.appendChild(this.filenameEl);
 
+    // "Open in Browser" button for content files with meta.url
+    const node = VFS.getNode(this.filePath);
+    if (node && node.meta && node.meta.url) {
+      const spacer = document.createElement('div');
+      spacer.style.flexGrow = '1';
+      this.toolbarEl.appendChild(spacer);
+
+      this.openBtn = document.createElement('button');
+      this.openBtn.className = 'viewer-open-btn';
+      this.openBtn.textContent = 'Open in Browser →';
+      this.openBtn.addEventListener('click', () => {
+        window.open(node.meta.url, '_blank');
+      });
+      this.toolbarEl.appendChild(this.openBtn);
+    }
+
     // Content
     this.contentEl = document.createElement('div');
     this.contentEl.className = 'viewer-content';

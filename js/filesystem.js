@@ -18,7 +18,7 @@ const CONFIG = {
   company: 'CelerData Inc. (StarRocks)',
   focus: 'Developer Marketing & DevRel',
   uptime: '6+ years in data infra',
-  packages: '25+ blogs, 15+ talks',
+  packages: (typeof ContentUtils !== 'undefined') ? ContentUtils.countByType().blog + ' articles, ' + ContentUtils.countByType().video + ' talks' : '70+ articles, 45+ talks',
   shell: 'Python, SQL, Linux',
   location: 'Menlo Park, CA',
   education: 'Penn State (MS + BS)',
@@ -64,6 +64,7 @@ const NEOFETCH_INFO = [
   { label: 'Shell', value: CONFIG.shell },
   { label: 'Location', value: CONFIG.location },
   { label: 'Education', value: CONFIG.education },
+  { label: 'Content', value: (typeof ContentUtils !== 'undefined') ? ContentUtils.totalCount() + ' posts & talks' : '119 posts & talks' },
   { label: null, value: '' },
   { label: null, value: '<span class="color-block-1">\u2588\u2588</span><span class="color-block-2">\u2588\u2588</span><span class="color-block-3">\u2588\u2588</span><span class="color-block-4">\u2588\u2588</span><span class="color-block-5">\u2588\u2588</span><span class="color-block-6">\u2588\u2588</span><span class="color-block-7">\u2588\u2588</span><span class="color-block-8">\u2588\u2588</span>' },
 ];
@@ -87,7 +88,10 @@ const COMMANDS_HELP = [
   { cmd: 'date', desc: 'Current date/time' },
   { cmd: 'uname [-a]', desc: 'System information' },
   { cmd: 'theme <name>', desc: 'Switch theme (green|amber|blue|white|dracula)' },
-  { cmd: 'open <url>', desc: 'Open URL in browser' },
+  { cmd: 'open <url|file>', desc: 'Open URL or content file in browser' },
+  { cmd: 'search <keyword>', desc: 'Search content by title or tag' },
+  { cmd: 'latest [n]', desc: 'Show latest content (default: 5)' },
+  { cmd: 'stats', desc: 'Content portfolio statistics' },
   { cmd: 'blog', desc: 'Featured articles' },
   { cmd: 'talks', desc: 'Talks & webinars' },
   { cmd: 'contact', desc: 'Contact information' },
@@ -302,103 +306,45 @@ const FS_TREE = {
         },
       },
     },
-    'writing': {
-      type: 'dir',
-      children: {
-        'README.md': {
-          type: 'file',
-          content: [
-            '# Published Writing',
-            '',
-            '## CelerData / StarRocks Blog',
-            '',
-            '  [01] 2026 Is When Open Data, Real-Time Analytics and AI Agents Converge',
-            '       https://celerdata.com/blog/author/sida-shen',
-            '  [02] Announcing StarRocks 4.0: Open, Fast, Governed',
-            '       https://celerdata.com/blog/author/sida-shen',
-            '  [03] Analytical Agents: New Challenges for Data Infrastructure',
-            '       https://celerdata.com/blog/author/sida-shen',
-            '  [04] Customer-Facing Analytics Without Denormalizing Everything',
-            '       https://celerdata.com/blog/author/sida-shen',
-            '  [05] Ditching Denormalization in Real-Time Analytics',
-            '       https://celerdata.com/blog/author/sida-shen',
-            '  [06] From Denormalization to Joins: Why ClickHouse Cannot Keep Up',
-            '       https://celerdata.com/blog/from-denormalization-to-joins-why-clickhouse-cannot-keep-up',
-            '  [07] Trino vs. StarRocks: Data Warehouse Performance on the Lake',
-            '       https://celerdata.com/blog/author/sida-shen',
-            '  [08] StarRocks vs. Apache Druid',
-            '       https://celerdata.com/blog/author/sida-shen',
-            '  [09] Demandbase Ditches Denormalization by Switching off ClickHouse',
-            '       https://celerdata.com/blog/demandbase-ditches-denormalization-by-switching-off-clickhouse',
-            '  [10] How NAVER Changed Their Data Infra with JOINs',
-            '       https://celerdata.com/blog/author/sida-shen',
-            '',
-            '  Full catalog: https://celerdata.com/blog/author/sida-shen',
-            '                https://www.starrocks.io/blog/author/sida-shen',
-            '',
-            '## External Publications',
-            '',
-            '  [01] The New Stack - Data Warehouse Performance on the Data Lakehouse',
-            '       https://thenewstack.io/how-to-get-data-warehouse-performance-on-the-data-lakehouse/',
-            '  [02] Delta.io - StarRocks Kernel',
-            '       https://delta.io/blog/starrocks-kernel/',
-            '  [03] Preset Blog - Accelerating Superset Dashboards with Materialized Views',
-            '       https://preset.io/blog/accelerating-apache-superset-dashboards-with-materialized-views/',
-            '  [04] insideAI News - The Solution to Data in Motion Is to Just Stop',
-            '       http://insideainews.com/2024/04/22/the-solution-to-data-in-motion-is-to-just-stop/',
-            '  [05] Medium - Databricks Iceberg Managed Table Explained',
-            '       https://medium.com/starrocks-engineering/databricks-iceberg-managed-table-explained-8b86551b2703',
-          ].join('\n'),
-        },
-      },
-    },
-    'speaking': {
-      type: 'dir',
-      children: {
-        'README.md': {
-          type: 'file',
-          content: [
-            '# Speaking & Appearances',
-            '',
-            '## Conference Talks',
-            '',
-            '  [01] StarRocks Summit 2025 - Customer-Facing Analytics with StarRocks',
-            '       https://summit.starrocks.io/2025',
-            '  [02] Databricks Data + AI Summit 2024',
-            '       https://www.databricks.com/dataaisummit/speaker/sida-shen',
-            '  [03] ITU AI for Good - Milvus Vector Database',
-            '       https://aiforgood.itu.int/speaker/sida-shen/',
-            '',
-            '## Webinars',
-            '',
-            '  [01] Announcing StarRocks 4.0 (with Ron Kapoor)',
-            '  [02] Introducing StarRocks 3.4 & 3.5',
-            '  [03] Ditching Denormalization: Superior JOIN Performance',
-            '  [04] Demandbase: Switching off ClickHouse (with Nick Reich)',
-            '  [05] Pinterest Customer-Facing Analytics Deep Dive',
-            '  [06] Real-Time Data with Ververica (with Ben Gamble)',
-            '  [07] DBTA: Why Lakehouse Users Should Ditch Their Data Warehouse',
-            '  [08] StarRocks 3.0 Community Call (with Albert Wong)',
-            '',
-            '  Video playlist:',
-            '  https://www.youtube.com/playlist?list=PLTXHtKIqm__dqxZYV8oQ-l7tRpSnftjmy',
-            '',
-            '## Interviews & Podcasts',
-            '',
-            '  [01] Data Engineering Podcast - Episode 463',
-            '       https://www.dataengineeringpodcast.com/episodepage/starrocks-high-performance-lakehouse-and-olap-episode-463',
-            '  [02] TFiR: CelerData Enables Data Engineers To Build Faster',
-            '       https://tfir.io/celerdata-enables-data-engineers-to-build-new-analytics-projects-faster-sida-shen/',
-            '  [03] Truth in IT: Breaking the Data Pipeline for Real-Time Analytics',
-            '       https://www.truthinit.com/index.php/video/3731/celerdata-breaking-the-data-pipeline-for-real-time-analytics/',
-            '  [04] Authority Magazine: Leveraging Data to Take Your Company to the Next Level',
-            '       https://medium.com/authority-magazine/sida-shen-of-celerdata-on-how-to-leverage-data-to-take-your-company-to-the-next-level-ce5a1c41d960',
-          ].join('\n'),
-        },
-      },
-    },
+    // blog, video, interviews directories are generated dynamically below
   },
 };
+
+// =================================================================
+// Dynamic content directories — generated from CONTENT_DATA
+// =================================================================
+(function buildContentDirs() {
+  if (typeof CONTENT_DATA === 'undefined') return;
+
+  function makeFileContent(item) {
+    return [
+      '# ' + item.title,
+      '',
+      'Source:  ' + item.source,
+      'Date:   ' + item.date,
+      'Tags:   ' + item.tags.join(', '),
+      '',
+      'Link: ' + item.url,
+    ].join('\n');
+  }
+
+  function buildDir(type) {
+    const items = ContentUtils.byType(type);
+    const children = {};
+    for (const item of items) {
+      children[item.id + '.md'] = {
+        type: 'file',
+        content: makeFileContent(item),
+        meta: { date: item.date, source: item.source, url: item.url, tags: item.tags },
+      };
+    }
+    return { type: 'dir', children: children };
+  }
+
+  FS_TREE.children['blog'] = buildDir('blog');
+  FS_TREE.children['video'] = buildDir('video');
+  FS_TREE.children['interviews'] = buildDir('interview');
+})();
 
 
 // =================================================================

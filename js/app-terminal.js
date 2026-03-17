@@ -387,7 +387,7 @@ class TerminalApp {
       const allCmds = [
         'help', 'whoami', 'neofetch', 'ls', 'cd', 'cat', 'pwd',
         'clear', 'history', 'echo', 'date', 'uname', 'theme',
-        'open', 'blog', 'talks', 'contact',
+        'open', 'search', 'latest', 'stats', 'blog', 'talks', 'contact',
       ];
       const matches = allCmds.filter(c => c.startsWith(partial));
       if (matches.length === 1) {
@@ -457,6 +457,9 @@ class TerminalApp {
       case 'uname':   this.cmdUname(args); break;
       case 'theme':   this.cmdTheme(args); break;
       case 'open':    this.cmdOpen(args); break;
+      case 'search':  this.cmdSearch(args); break;
+      case 'latest':  this.cmdLatest(args); break;
+      case 'stats':   this.cmdStats(); break;
       case 'blog':    this.cmdBlog(); break;
       case 'talks':   this.cmdTalks(); break;
       case 'contact': this.cmdContact(); break;
@@ -666,91 +669,140 @@ class TerminalApp {
 
   cmdOpen(args) {
     if (args.length === 0) {
-      this.printHTML('<span class="error">Usage: open &lt;url&gt;</span>');
+      this.printHTML('<span class="error">Usage: open &lt;url or file&gt;</span>');
       return;
     }
-    let url = args[0];
-    if (!url.startsWith('http://') && !url.startsWith('https://')) {
-      url = 'https://' + url;
+    const target = args[0];
+    // Check if it's a URL
+    if (target.startsWith('http://') || target.startsWith('https://') || target.includes('.com') || target.includes('.io') || target.includes('.org')) {
+      let url = target;
+      if (!url.startsWith('http://') && !url.startsWith('https://')) url = 'https://' + url;
+      window.open(url, '_blank', 'noopener');
+      this.printHTML('Opening <span class="link">' + VFS.escapeHtml(url) + '</span>...');
+      return;
     }
-    window.open(url, '_blank', 'noopener');
-    this.printHTML('Opening <span class="link">' + VFS.escapeHtml(url) + '</span>...');
+    // Try VFS path
+    const resolved = VFS.resolvePath(target, this.cwd);
+    const node = VFS.getNode(resolved);
+    if (node && node.type === 'file' && node.meta && node.meta.url) {
+      window.open(node.meta.url, '_blank', 'noopener');
+      this.printHTML('Opening <span class="link">' + VFS.escapeHtml(node.meta.url) + '</span>...');
+    } else if (node && node.type === 'dir') {
+      this.printHTML('<span class="error">Cannot open a directory. Use cd instead.</span>');
+    } else {
+      let url = target;
+      if (!url.startsWith('http://') && !url.startsWith('https://')) url = 'https://' + url;
+      window.open(url, '_blank', 'noopener');
+      this.printHTML('Opening <span class="link">' + VFS.escapeHtml(url) + '</span>...');
+    }
+  }
+
+  /* ---- Content commands ---------------------------------------- */
+
+  _printContentItem(item, idx) {
+    const num = String(idx + 1).padStart(2, '0');
+    this.printHTML(
+      '<span class="dim">[' + num + ']</span> ' +
+      '<span class="accent">[' + VFS.escapeHtml(item.source) + ']</span> ' +
+      VFS.escapeHtml(item.title) +
+      ' <span class="dim">(' + item.date + ')</span>'
+    );
+    this.printHTML(
+      '      <a href="' + VFS.escapeHtml(item.url) + '" target="_blank" rel="noopener">' +
+      VFS.escapeHtml(item.url) + '</a>'
+    );
+  }
+
+  cmdSearch(args) {
+    if (typeof ContentUtils === 'undefined') { this.print('Content data not loaded.'); return; }
+    if (args.length === 0) {
+      this.printHTML('<span class="error">Usage: search &lt;keyword&gt;</span>');
+      this.printHTML('<span class="dim">Search content by title or tag. Example: search lakehouse</span>');
+      return;
+    }
+    const keyword = args.join(' ');
+    const results = ContentUtils.search(keyword);
+    if (results.length === 0) {
+      this.printHTML('<span class="dim">No results for "' + VFS.escapeHtml(keyword) + '"</span>');
+      return;
+    }
+    this.print('');
+    this.printHTML('<span class="bold">Search: "' + VFS.escapeHtml(keyword) + '" (' + results.length + ' results)</span>');
+    this.print('');
+    results.forEach((item, i) => this._printContentItem(item, i));
+    this.print('');
+  }
+
+  cmdLatest(args) {
+    if (typeof ContentUtils === 'undefined') { this.print('Content data not loaded.'); return; }
+    const n = parseInt(args[0], 10) || 5;
+    const items = ContentUtils.latest(n);
+    this.print('');
+    this.printHTML('<span class="bold">Latest ' + items.length + ' Content Items</span>');
+    this.print('');
+    items.forEach((item, i) => this._printContentItem(item, i));
+    this.print('');
+  }
+
+  cmdStats() {
+    if (typeof ContentUtils === 'undefined') { this.print('Content data not loaded.'); return; }
+    const types = ContentUtils.countByType();
+    const sources = ContentUtils.sources();
+    const total = ContentUtils.totalCount();
+    this.print('');
+    this.printHTML('<span class="bold">Content Portfolio Statistics</span>');
+    this.print('');
+    this.printHTML('<span class="h2">Blog Posts (' + types.blog + ')</span>');
+    for (const src of ['CelerData Blog', 'StarRocks Blog', 'Medium', 'Guest Posts']) {
+      if (!sources[src]) continue;
+      const label = ('  ' + src).padEnd(24);
+      const bar = '\u2588'.repeat(Math.min(sources[src], 40));
+      this.printHTML('<span class="label">' + VFS.escapeHtml(label) + '</span><span class="accent">' + bar + '</span> ' + sources[src]);
+    }
+    this.print('');
+    this.printHTML('<span class="h2">Videos (' + types.video + ')</span>');
+    for (const src of ['Conference', 'Webinar']) {
+      if (!sources[src]) continue;
+      const label = ('  ' + src).padEnd(24);
+      const bar = '\u2588'.repeat(Math.min(sources[src], 40));
+      this.printHTML('<span class="label">' + VFS.escapeHtml(label) + '</span><span class="accent">' + bar + '</span> ' + sources[src]);
+    }
+    this.print('');
+    this.printHTML('<span class="h2">Interviews (' + types.interview + ')</span>');
+    for (const src of Object.keys(sources)) {
+      if (!['CelerData Blog','StarRocks Blog','Medium','Guest Posts','Conference','Webinar'].includes(src) && sources[src]) {
+        const label = ('  ' + src).padEnd(24);
+        const bar = '\u2588'.repeat(Math.min(sources[src], 40));
+        this.printHTML('<span class="label">' + VFS.escapeHtml(label) + '</span><span class="accent">' + bar + '</span> ' + sources[src]);
+      }
+    }
+    this.print('');
+    this.printHTML('<span class="bold">Total: ' + total + ' content items</span>');
+    this.print('');
   }
 
   cmdBlog() {
+    if (typeof ContentUtils === 'undefined') { this.print('Content data not loaded.'); return; }
+    const featured = ContentUtils.featured().filter(i => i.type === 'blog');
     this.print('');
-    this.printHTML('<span class="bold">Featured Writing</span>');
+    this.printHTML('<span class="bold">Featured Blog Posts</span>');
     this.print('');
-
-    const posts = [
-      { title: '2026 Is When Open Data, Real-Time Analytics and AI Agents Converge', tag: 'STRATEGY' },
-      { title: 'Announcing StarRocks 4.0: Open, Fast, Governed', tag: 'LAUNCH' },
-      { title: 'Customer-Facing Analytics Without Denormalizing Everything', tag: 'TECHNICAL' },
-      { title: 'From Denormalization to Joins: Why ClickHouse Cannot Keep Up', tag: 'COMPARISON' },
-      { title: 'Demandbase Ditches Denormalization by Switching off ClickHouse', tag: 'CASE STUDY' },
-      { title: 'Trino vs. StarRocks: Data Warehouse Performance on the Lake', tag: 'COMPARISON' },
-      { title: 'Data Warehouse Performance on the Data Lakehouse (The New Stack)', tag: 'EXTERNAL' },
-      { title: 'StarRocks Kernel (Delta.io)', tag: 'EXTERNAL' },
-      { title: 'Accelerating Superset Dashboards with Materialized Views (Preset)', tag: 'EXTERNAL' },
-    ];
-
-    for (let i = 0; i < posts.length; i++) {
-      const num = String(i + 1).padStart(2, '0');
-      this.printHTML(
-        '<span class="dim">[' + num + ']</span> ' +
-        '<span class="accent">[' + posts[i].tag + ']</span> ' +
-        VFS.escapeHtml(posts[i].title)
-      );
-    }
-
+    featured.forEach((item, i) => this._printContentItem(item, i));
     this.print('');
     this.printHTML('Full catalog: <a href="https://celerdata.com/blog/author/sida-shen" target="_blank" rel="noopener">celerdata.com/blog/author/sida-shen</a>');
-    this.printHTML('<span class="dim">Run \'cat writing/README.md\' for all articles with links</span>');
+    this.printHTML('<span class="dim">Run \'ls blog/\' to browse all ' + ContentUtils.countByType().blog + ' posts</span>');
   }
 
   cmdTalks() {
+    if (typeof ContentUtils === 'undefined') { this.print('Content data not loaded.'); return; }
+    const featured = ContentUtils.featured().filter(i => i.type === 'video');
     this.print('');
-    this.printHTML('<span class="bold">Speaking & Appearances</span>');
+    this.printHTML('<span class="bold">Featured Talks & Webinars</span>');
     this.print('');
-
-    this.printHTML('<span class="h2">Conferences</span>');
-    const confs = [
-      'StarRocks Summit 2025 \u2014 Customer-Facing Analytics',
-      'Databricks Data + AI Summit 2024',
-      'ITU AI for Good \u2014 Milvus Vector Database',
-    ];
-    confs.forEach((c, i) => {
-      this.printHTML('  <span class="dim">[' + String(i + 1).padStart(2, '0') + ']</span> ' + VFS.escapeHtml(c));
-    });
-
-    this.print('');
-    this.printHTML('<span class="h2">Webinars (selected)</span>');
-    const webs = [
-      'Announcing StarRocks 4.0',
-      'Ditching Denormalization: Superior JOIN Performance',
-      'Demandbase: Switching off ClickHouse',
-      'Pinterest Customer-Facing Analytics Deep Dive',
-      'Real-Time Data with Ververica',
-    ];
-    webs.forEach((w, i) => {
-      this.printHTML('  <span class="dim">[' + String(i + 1).padStart(2, '0') + ']</span> ' + VFS.escapeHtml(w));
-    });
-
-    this.print('');
-    this.printHTML('<span class="h2">Interviews & Podcasts</span>');
-    const interviews = [
-      'Data Engineering Podcast \u2014 Episode 463',
-      'TFiR: CelerData Enables Data Engineers To Build Faster',
-      'Truth in IT: Breaking the Data Pipeline',
-      'Authority Magazine: Leveraging Data',
-    ];
-    interviews.forEach((itv, i) => {
-      this.printHTML('  <span class="dim">[' + String(i + 1).padStart(2, '0') + ']</span> ' + VFS.escapeHtml(itv));
-    });
-
+    featured.forEach((item, i) => this._printContentItem(item, i));
     this.print('');
     this.printHTML('Videos: <a href="https://www.youtube.com/playlist?list=PLTXHtKIqm__dqxZYV8oQ-l7tRpSnftjmy" target="_blank" rel="noopener">YouTube Playlist</a>');
-    this.printHTML('<span class="dim">Run \'cat speaking/README.md\' for full list with links</span>');
+    this.printHTML('<span class="dim">Run \'ls video/\' to browse all ' + ContentUtils.countByType().video + ' talks</span>');
   }
 
   cmdContact() {

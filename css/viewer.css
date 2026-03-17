@@ -96,6 +96,25 @@
   color: #fff;
 }
 
+/* --- Open in Browser Button --- */
+.viewer-open-btn {
+  background: transparent;
+  border: 1px solid var(--accent, #00ff41);
+  color: var(--accent, #00ff41);
+  padding: 3px 12px;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 12px;
+  font-family: inherit;
+  white-space: nowrap;
+  transition: background 0.15s, color 0.15s;
+}
+
+.viewer-open-btn:hover {
+  background: var(--accent, #00ff41);
+  color: #000;
+}
+
 /* --- Mobile Responsive --- */
 @media (max-width: 768px) {
   .viewer-back-btn {
