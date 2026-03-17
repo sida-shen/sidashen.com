@@ -24,6 +24,9 @@ const Desktop = {
   /*  Initialization                                                     */
   /* ------------------------------------------------------------------ */
 
+  /** @type {string} current mobile tab: 'chat' | 'files' */
+  _mobileTab: 'chat',
+
   init() {
     // Initialize window manager
     const desktopEl = document.getElementById('desktop');
@@ -38,6 +41,11 @@ const Desktop = {
     // Set up dock
     this.setupDock();
 
+    // Set up mobile nav
+    if (this.isMobile()) {
+      this.setupMobileNav();
+    }
+
     // Boot sequence
     this.boot();
   },
@@ -48,8 +56,8 @@ const Desktop = {
 
   boot() {
     if (this.isMobile()) {
-      // Mobile: fullscreen file explorer (tap files to open viewer)
-      this.openExplorer('~', { fullscreen: true });
+      // Mobile: fullscreen terminal (AI chat as primary experience)
+      this.openTerminal({ fullscreen: true });
     } else {
       // Desktop: open terminal (left) + explorer (right), floating
       const desktopEl = document.getElementById('desktop');
@@ -276,6 +284,74 @@ const Desktop = {
       const hasExplorer = WindowManager.getWindowsByApp('explorer').length > 0;
       filesBtn.classList.toggle('active', hasExplorer);
     }
+  },
+
+  /* ------------------------------------------------------------------ */
+  /*  Mobile bottom nav                                                  */
+  /* ------------------------------------------------------------------ */
+
+  setupMobileNav() {
+    const nav = document.getElementById('mobile-nav');
+    if (!nav) return;
+
+    nav.querySelectorAll('.mobile-nav-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        const target = tab.dataset.tab;
+        if (target === this._mobileTab) return;
+        this.switchMobileTab(target);
+      });
+    });
+  },
+
+  switchMobileTab(tab) {
+    this._mobileTab = tab;
+
+    // Update tab active states
+    const nav = document.getElementById('mobile-nav');
+    if (nav) {
+      nav.querySelectorAll('.mobile-nav-tab').forEach(t => {
+        t.classList.toggle('active', t.dataset.tab === tab);
+      });
+    }
+
+    if (tab === 'chat') {
+      // Hide explorer & viewer windows (don't destroy)
+      this._hideWindowsByApp('explorer');
+      this._hideWindowsByApp('viewer');
+
+      // Show or create terminal
+      const existing = WindowManager.getWindowsByApp('terminal');
+      if (existing.length > 0) {
+        existing.forEach(w => {
+          w.el.style.display = '';
+          this._apps[w.id]?.focus?.();
+        });
+      } else {
+        this.openTerminal({ fullscreen: true });
+      }
+    } else if (tab === 'files') {
+      // Hide terminal (preserve chat history)
+      this._hideWindowsByApp('terminal');
+      this._hideWindowsByApp('viewer');
+
+      // Show or create explorer
+      const existing = WindowManager.getWindowsByApp('explorer');
+      if (existing.length > 0) {
+        existing.forEach(w => {
+          w.el.style.display = '';
+        });
+      } else {
+        this.openExplorer('~', { fullscreen: true });
+      }
+    }
+  },
+
+  /** Hide all windows of a given app type (display:none, preserves state) */
+  _hideWindowsByApp(appType) {
+    const windows = WindowManager.getWindowsByApp(appType);
+    windows.forEach(w => {
+      w.el.style.display = 'none';
+    });
   },
 
   /* ------------------------------------------------------------------ */

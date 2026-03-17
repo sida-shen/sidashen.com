@@ -15,12 +15,12 @@
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet">
 
   <!-- Stylesheets -->
-  <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="css/desktop.css">
-  <link rel="stylesheet" href="css/window.css">
-  <link rel="stylesheet" href="css/terminal.css">
-  <link rel="stylesheet" href="css/explorer.css">
-  <link rel="stylesheet" href="css/viewer.css">
+  <link rel="stylesheet" href="css/style.css?v=2">
+  <link rel="stylesheet" href="css/desktop.css?v=2">
+  <link rel="stylesheet" href="css/window.css?v=2">
+  <link rel="stylesheet" href="css/terminal.css?v=2">
+  <link rel="stylesheet" href="css/explorer.css?v=2">
+  <link rel="stylesheet" href="css/viewer.css?v=2">
 </head>
 <body>
 
@@ -69,6 +69,18 @@
     <div class="dock-separator"></div>
   </div>
 
+  <!-- ========== Mobile Bottom Nav ========== -->
+  <nav id="mobile-nav">
+    <button class="mobile-nav-tab active" data-tab="chat">
+      <span class="mobile-nav-icon">💬</span>
+      <span>Chat</span>
+    </button>
+    <button class="mobile-nav-tab" data-tab="files">
+      <span class="mobile-nav-icon">📁</span>
+      <span>Files</span>
+    </button>
+  </nav>
+
   <!-- ========== No-JS Fallback ========== -->
   <noscript>
     <div style="font-family:monospace;padding:2rem;max-width:700px;margin:0 auto;">
@@ -89,11 +101,11 @@
   </noscript>
 
   <!-- ========== Scripts (load order matters) ========== -->
-  <script src="js/filesystem.js"></script>
-  <script src="js/window-manager.js"></script>
-  <script src="js/app-terminal.js"></script>
-  <script src="js/app-explorer.js"></script>
-  <script src="js/app-viewer.js"></script>
-  <script src="js/desktop.js"></script>
+  <script src="js/filesystem.js?v=2"></script>
+  <script src="js/window-manager.js?v=2"></script>
+  <script src="js/app-terminal.js?v=2"></script>
+  <script src="js/app-explorer.js?v=2"></script>
+  <script src="js/app-viewer.js?v=2"></script>
+  <script src="js/desktop.js?v=2"></script>
 </body>
 </html>

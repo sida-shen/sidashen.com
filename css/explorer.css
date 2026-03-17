@@ -237,4 +237,8 @@
   .explorer-list-icon {
     font-size: 22px;
   }
+
+  .explorer-content {
+    padding-bottom: 20px;
+  }
 }

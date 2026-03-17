@@ -136,11 +136,12 @@
 
 /* --- Mobile Responsive --- */
 @media (max-width: 768px) {
-  .window {
+  .window,
+  .window.maximized {
     top: 0 !important;
     left: 0 !important;
     width: 100vw !important;
-    height: 100vh !important;
+    height: calc(100vh - 52px) !important;  /* leave room for mobile nav */
     border-radius: 0;
   }
 

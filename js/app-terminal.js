@@ -136,31 +136,50 @@ class TerminalApp {
   /* ------------------------------------------------------------------ */
 
   printNeofetch() {
-    const maxLogoWidth = Math.max(...LOGO_LINES.map(l => l.length));
-    const pad = 4;
-    const maxLines = Math.max(LOGO_LINES.length, NEOFETCH_INFO.length);
+    const isMobile = window.innerWidth <= 768;
 
-    let html = '';
-    for (let i = 0; i < maxLines; i++) {
-      const logoRaw = LOGO_LINES[i] || '';
-      const logoEsc = VFS.escapeHtml(logoRaw);
-      const logoPadded = logoEsc + ' '.repeat(Math.max(0, maxLogoWidth - logoRaw.length));
-      const spacer = ' '.repeat(pad);
-
-      let infoHTML = '';
-      if (i < NEOFETCH_INFO.length) {
-        const item = NEOFETCH_INFO[i];
+    if (isMobile) {
+      // Mobile: stack logo on top, info below
+      let html = '';
+      for (const line of LOGO_LINES) {
+        html += '<span class="logo">' + VFS.escapeHtml(line) + '</span>\n';
+      }
+      html += '\n';
+      for (const item of NEOFETCH_INFO) {
         if (item.label) {
-          infoHTML = '<span class="label">' + item.label + ':</span> ' + item.value;
+          html += '<span class="label">' + item.label + ':</span> ' + item.value + '\n';
         } else {
-          infoHTML = item.value;
+          html += item.value + '\n';
         }
       }
+      this.printHTML(html.trimEnd());
+    } else {
+      // Desktop: side-by-side logo + info
+      const maxLogoWidth = Math.max(...LOGO_LINES.map(l => l.length));
+      const pad = 4;
+      const maxLines = Math.max(LOGO_LINES.length, NEOFETCH_INFO.length);
 
-      html += '<span class="logo">' + logoPadded + '</span>' + spacer + infoHTML + '\n';
+      let html = '';
+      for (let i = 0; i < maxLines; i++) {
+        const logoRaw = LOGO_LINES[i] || '';
+        const logoEsc = VFS.escapeHtml(logoRaw);
+        const logoPadded = logoEsc + ' '.repeat(Math.max(0, maxLogoWidth - logoRaw.length));
+        const spacer = ' '.repeat(pad);
+
+        let infoHTML = '';
+        if (i < NEOFETCH_INFO.length) {
+          const item = NEOFETCH_INFO[i];
+          if (item.label) {
+            infoHTML = '<span class="label">' + item.label + ':</span> ' + item.value;
+          } else {
+            infoHTML = item.value;
+          }
+        }
+
+        html += '<span class="logo">' + logoPadded + '</span>' + spacer + infoHTML + '\n';
+      }
+      this.printHTML(html.trimEnd());
     }
-
-    this.printHTML(html.trimEnd());
   }
 
   /* ------------------------------------------------------------------ */

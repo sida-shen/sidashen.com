@@ -217,6 +217,11 @@ body {
   margin: 4px 0;
 }
 
+/* --- Mobile Bottom Nav (hidden on desktop) --- */
+#mobile-nav {
+  display: none;
+}
+
 /* --- Mobile Responsive --- */
 @media (max-width: 768px) {
   #top-panel {
@@ -230,5 +235,46 @@ body {
   #desktop {
     top: 0;
     left: 0;
+    bottom: 52px;  /* leave room for mobile nav */
+  }
+
+  #mobile-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 52px;
+    display: flex;
+    z-index: 10000;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .mobile-nav-tab {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #888;
+    font-size: 11px;
+    gap: 2px;
+    border: none;
+    background: none;
+    font-family: inherit;
+    cursor: pointer;
+    transition: color 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .mobile-nav-tab.active {
+    color: var(--fg, #fff);
+  }
+
+  .mobile-nav-icon {
+    font-size: 20px;
+    line-height: 1;
   }
 }
