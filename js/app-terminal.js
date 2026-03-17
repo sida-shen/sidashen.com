@@ -92,7 +92,16 @@ class TerminalApp {
         this.focus();
       }
     };
+
+    // Mobile: only focus (show keyboard) on tap, not on scroll
+    this._touchStartY = 0;
+    this._onTouchStart = (e) => {
+      this._touchStartY = e.touches[0].clientY;
+    };
     this._onTouchEnd = (e) => {
+      const dy = Math.abs((e.changedTouches[0]?.clientY || 0) - this._touchStartY);
+      // If finger moved more than 10px, it's a scroll — don't focus
+      if (dy > 10) return;
       if (!window.getSelection().toString()) {
         this.focus();
       }
@@ -101,6 +110,7 @@ class TerminalApp {
     this.hiddenInput.addEventListener('keydown', this._onKeyDown);
     this.hiddenInput.addEventListener('input', this._onInput);
     this.terminalEl.addEventListener('click', this._onClick);
+    this.terminalEl.addEventListener('touchstart', this._onTouchStart, { passive: true });
     this.terminalEl.addEventListener('touchend', this._onTouchEnd);
   }
 
@@ -992,6 +1002,7 @@ class TerminalApp {
     this.hiddenInput.removeEventListener('keydown', this._onKeyDown);
     this.hiddenInput.removeEventListener('input', this._onInput);
     this.terminalEl.removeEventListener('click', this._onClick);
+    this.terminalEl.removeEventListener('touchstart', this._onTouchStart);
     this.terminalEl.removeEventListener('touchend', this._onTouchEnd);
 
     this.terminalEl.remove();
